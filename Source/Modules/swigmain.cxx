@@ -57,7 +57,7 @@ static TargetLanguageModule modules[] = {
   {"-clisp", NULL, "CLISP", Disabled},
   {"-cffi", NULL, "CFFI", Disabled},
   {"-csharp", swig_csharp, "C#", Supported},
-  {"-objc", swig_objectivec, "Objective C"},
+  {"-objc", swig_objectivec, "Objective C", Experimental},
   {"-d", swig_d, "D", Supported},
   {"-go", swig_go, "Go", Supported},
   {"-guile", swig_guile, "Guile", Supported},

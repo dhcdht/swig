@@ -787,7 +787,8 @@ int OBJECTIVEC::classHandler(Node *n)
 {
     if (proxy_flag)
     {
-        proxy_class_name = Copy(Getattr(n, "sym:name"));
+        // proxy_class_name = Copy(Getattr(n, "sym:name"));
+        proxy_class_name = NewStringf("Cpp%s", Getattr(n, "sym:name"));
 
         if (!addSymbol(proxy_class_name, n))
             return SWIG_ERROR;
@@ -2409,7 +2410,7 @@ String *OBJECTIVEC::createProxyName(SwigType *t)
         Node *n = classLookup(t);
         if (n)
         {
-            return Getattr(n, "sym:name");
+            return NewStringf("Cpp%s", Getattr(n, "sym:name"));
         }
     }
     return NULL;
@@ -2487,7 +2488,7 @@ int OBJECTIVEC::doxygenComment(Node *n)
 
 int OBJECTIVEC::classDirectorMethod(Node *n, Node *parent, String *super)
 {
-    String *classname = Getattr(parent, "sym:name");
+    String *classname = NewStringf("Cpp%s", Getattr(parent, "sym:name"));
     String *c_classname = Getattr(parent, "name");
     String *name = Getattr(n, "name");
     String *symname = Getattr(n, "sym:name");
