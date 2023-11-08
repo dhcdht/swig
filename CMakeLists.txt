@@ -4,6 +4,9 @@ if (NOT DEFINED CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
 endif ()
 
+set (CMAKE_CXX_FLAGS "-arch x86_64")
+set (CMAKE_C_FLAGS "-arch x86_64")
+
 project (swig)
 
 if (POLICY CMP0074)
