@@ -472,6 +472,7 @@ int OBJECTIVEC::top(Node *n)
     }
 
     // Write to the wrap_mm
+    Printf(f_wrap_mm, "#import \"%s_proxy.h\"\n\n", module);
     Dump(f_runtime, f_wrap_mm);
     Dump(f_header, f_wrap_mm);
 
