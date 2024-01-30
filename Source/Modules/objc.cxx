@@ -857,7 +857,7 @@ int OBJECTIVEC::enumDeclaration(Node *n)
         return SWIG_NOWRAP;
 
     String *typemap_lookup_type = Getattr(n, "name");
-    String *symname = Getattr(n, "sym:name");
+    String *symname = NewStringf("Cpp%s", Getattr(n, "sym:name"));
     String *enumname;
 
     Node *p = parentNode(n);
@@ -2265,7 +2265,7 @@ void OBJECTIVEC::substituteClassnameVariable(String *tm, const char *classnameva
     if (SwigType_isenum(type))
     {
         Node *n = enumLookup(type);
-        String *enum_name = Getattr(n, "sym:name");
+        String *enum_name = NewStringf("Cpp%s", Getattr(n, "sym:name"));
         Node *p = parentNode(n);
         if (p && !Strcmp(nodeType(p), "class"))
         {
