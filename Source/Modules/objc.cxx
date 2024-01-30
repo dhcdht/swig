@@ -63,6 +63,7 @@ private:
     String *proxy_class_enums_code; // Code for enumerations nested in the current proxy class. Is emitted globally and earlier
     // than the rest of the body to work around forward referencing-issues.
 
+    String *proxy_protocol_function_decls;
     String *proxy_class_function_decls;  // Code for the proxy class member functions declaration.
     String *proxy_class_function_defns;  // Code for the proxy class member functions definition.
     String *proxy_global_function_decls; // Code for the proxy class member functions declaration.
@@ -118,6 +119,7 @@ public:
                    proxy_class_decl_imports(NULL),
                    proxy_class_defn_imports(NULL),
                    proxy_class_enums_code(NULL),
+                   proxy_protocol_function_decls(NULL),
                    proxy_class_function_decls(NULL),
                    proxy_class_function_defns(NULL),
                    proxy_global_function_decls(NULL),
@@ -178,6 +180,7 @@ public:
     void emitProxyClassFunction(Node *n);
     void emitProxyClassConstructor(Node *n);
     void emitProxyClass(Node *n);
+    void emitProxyDirectorProtocol(Node *n);
     void emitTypeWrapperClass(String *classname, SwigType *type);
 
     /* Pragma directives */
@@ -438,6 +441,7 @@ int OBJECTIVEC::top(Node *n)
         proxy_class_decl_code = NewString("");
         proxy_class_defn_code = NewString("");
         proxy_class_enums_code = NewString("");
+        proxy_protocol_function_decls = NewString("");
         proxy_class_function_decls = NewString("");
         proxy_class_function_defns = NewString("");
         proxy_global_function_decls = NewString("");
@@ -543,6 +547,7 @@ int OBJECTIVEC::top(Node *n)
         Delete(proxy_class_decl_code);
         Delete(proxy_class_defn_code);
         Delete(proxy_class_enums_code);
+        Delete(proxy_protocol_function_decls);
         Delete(proxy_class_function_decls);
         Delete(proxy_class_function_defns);
         Delete(proxy_global_function_decls);
@@ -795,6 +800,7 @@ int OBJECTIVEC::classHandler(Node *n)
             return SWIG_ERROR;
 
         //Clear(proxy_class_imports);
+        Clear(proxy_protocol_function_decls);
         Clear(proxy_class_function_decls);
         Clear(proxy_class_function_defns);
         Clear(proxy_global_function_decls);
@@ -810,6 +816,9 @@ int OBJECTIVEC::classHandler(Node *n)
     if (proxy_flag)
     {
         // Write the code for proxy class
+        if (Swig_directorclass(n)) {
+            emitProxyDirectorProtocol(n);
+        }
         emitProxyClass(n);
 
         // Apply the necessary substitutions
@@ -1502,6 +1511,8 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     String *imcall = NewString("");
     String *function_defn = NewString("");
     String *function_decl = NewString("");
+    String *protocol_decl = NewString("");
+    String *protocol_defn = NewString("");
     String *tm;
 
     String *imfunctionname = Getattr(n, "imfunctionname");
@@ -1545,15 +1556,21 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     // Deal with overloading
 
     /* Write the proxy function declaration and definition */
+    Printf(protocol_decl, "@required\n");
 
     // Begin the first line of the function declaration
-    if (static_flag)
+    if (static_flag) {
         Printv(function_decl, "+(", objcrettype, ")", proxyfunctionname, NIL);
-    else
+        Printv(protocol_decl, "+(", objcrettype, ")", proxyfunctionname, NIL);
+    }
+    else {
         Printv(function_decl, "-(", objcrettype, ")", proxyfunctionname, NIL);
+        Printv(protocol_decl, "-(", objcrettype, ")", proxyfunctionname, NIL);
+    }
 
     // Prepare the call to intermediate function
     Printv(imcall, imfunctionname, "(", NIL);
+    Printv(protocol_defn, "return [_delegate ", proxyfunctionname, NIL);
 
     // Attach the non-standard typemaps to the parameter list
     Swig_typemap_attach_parms("in", parmlist, NULL);
@@ -1581,8 +1598,9 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
             Swig_warning(WARN_OBJC_TYPEMAP_OBJCTYPE_UNDEF, input_file, line_number, "No objctype typemap defined for %s\n", SwigType_str(pt, 0));
         }
 
-        if (gencomma)
+        if (gencomma) {
             Printf(imcall, ", ");
+        }
 
         String *arg = makeParameterName(n, p, i, setter_flag);
 
@@ -1601,17 +1619,29 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
         // Add parameter to proxy function
         if (static_flag)
         {
-            if (gencomma == 0)
+            if (gencomma == 0) {
                 Printf(function_decl, ": (%s)%s", objcparmtype, arg);
-            else if (gencomma >= 1)
+                Printf(protocol_decl, ": (%s)%s", objcparmtype, arg);
+                Printf(protocol_defn, ":%s", arg);
+            }
+            else if (gencomma >= 1) {
                 Printf(function_decl, " %s: (%s)%s", arg, objcparmtype, arg);
+                Printf(protocol_decl, " %s: (%s)%s", arg, objcparmtype, arg);
+                Printf(protocol_defn, " %s:%s", arg, arg);
+            }
         }
         else
         {
-            if (gencomma == 1)
+            if (gencomma == 1) {
                 Printf(function_decl, ": (%s)%s", objcparmtype, arg);
-            else if (gencomma >= 2)
+                Printf(protocol_decl, ": (%s)%s", objcparmtype, arg);
+                Printf(protocol_defn, ":%s", arg);
+            }
+            else if (gencomma >= 2) {
                 Printf(function_decl, " %s: (%s)%s", arg, objcparmtype, arg);
+                Printf(protocol_decl, " %s: (%s)%s", arg, objcparmtype, arg);
+                Printf(protocol_defn, " %s:%s", arg, arg);
+            }
         }
         gencomma++;
 
@@ -1622,6 +1652,11 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     // First line of function definition
     Printv(function_defn, function_decl, "\n{\n", NIL);
     Printf(function_decl, ";");
+    Printf(protocol_decl, ";\n");
+    Printf(protocol_defn, "];");
+    if (GetFlag(n, "explicitcall")) {
+        Clear(protocol_decl);
+    }
 
     // End the call to the intermediate function
     Printv(imcall, ")", NIL);
@@ -1641,7 +1676,11 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     else
         Replaceall(tm, "$owner", "false");
     substituteClassname(tm, type);
-    Printf(function_defn, " %s\n}\n", tm ? ((const String *)tm) : empty_string);
+    if (!Swig_directorclass(n) || GetFlag(n, "explicitcall")) {
+        Printf(function_defn, " %s\n}\n", tm ? ((const String *)tm) : empty_string);
+    } else {
+        Printf(function_defn, "\t%s\n}\n", protocol_defn);
+    }
 
     // Write documentation
     if (doxygen && doxygenTranslator->hasDocumentation(n))
@@ -1655,6 +1694,7 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
 
     /* Write the function declaration to the proxy_class_function_decls
      and function definition to the proxy_class_function_defns */
+    Printv(proxy_protocol_function_decls, protocol_decl, NIL);
     Printv(proxy_class_function_decls, function_decl, "\n", NIL);
     Printv(proxy_class_function_defns, function_defn, "\n", NIL);
 
@@ -1663,7 +1703,9 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     Delete(objcrettype);
     Delete(imcall);
     Delete(function_decl);
+    Delete(protocol_decl);
     Delete(function_defn);
+    Delete(protocol_defn);
 }
 
 /* -----------------------------------------------------------------------------
@@ -2002,15 +2044,22 @@ void OBJECTIVEC::emitProxyClass(Node *n)
         Delete(doxygen_comments);
     }
 
+    // protocol
+    String *protocol_decls = NewString("");
+    if (Swig_directorclass(n)) {
+        Printf(protocol_decls, "-(void)setDelegate:(id<%sProtocol>)delegate;", "$objcclassname");
+    }
+
     // the class interface
     String *visibility = NewString("__attribute__ ((visibility(\"default\"))) ");
     Printv(proxy_class_decl_code, proxy_class_decl_imports, proxy_class_enums_code, documentation, visibility,
            objcinterfacemodifier, " $objcclassname",
            (*Char(wanted_base) || *Char(protocols)) ? " : " : "", wanted_base,
            (*Char(wanted_base) && *Char(protocols)) ? ", " : "", protocols,
-           objcinterfacecode, proxy_class_function_decls, destructor_decl, "\n", typemapLookup(n, "objcclassclose", typemap_lookup_type, WARN_NONE), "\n\n", NIL);
+           objcinterfacecode, proxy_class_function_decls, destructor_decl, protocol_decls, "\n", typemapLookup(n, "objcclassclose", typemap_lookup_type, WARN_NONE), "\n\n", NIL);
     Delete(visibility);
     Delete(documentation);
+    Delete(protocol_decls);
 
     /* Write the proxy class definition */
     // Class modifiers.
@@ -2027,9 +2076,17 @@ void OBJECTIVEC::emitProxyClass(Node *n)
         objcimplementationcode = typemapLookup(n, "objcimplementationcode", typemap_lookup_type, WARN_NONE);
     }
 
+    // protocol
+    String *protocol_class_impl = NewString("");
+    String *protocol_defs = NewString("");
+    if (Swig_directorclass(n)) {
+        Printf(protocol_class_impl, "\n{\n    __weak id<%sProtocol> _delegate;\n}\n", "$objcclassname");
+        Printf(protocol_defs, "-(void)setDelegate:(id<%sProtocol>)delegate {\n    _delegate = delegate;\n}\n", "$objcclassname");
+    }
+
     // the class implementation
-    Printv(proxy_class_defn_code, "\n", proxy_class_defn_imports, objccimplementationmodifier, " $objcclassname", objcimplementationcode, "\n",
-           proxy_class_function_defns, destructor_defn, "\n", typemapLookup(n, "objcclassclose", typemap_lookup_type, WARN_NONE), "\n\n", NIL);
+    Printv(proxy_class_defn_code, "\n", proxy_class_defn_imports, objccimplementationmodifier, " $objcclassname", protocol_class_impl, objcimplementationcode, "\n",
+           proxy_class_function_defns, destructor_defn, protocol_defs, "\n", typemapLookup(n, "objcclassclose", typemap_lookup_type, WARN_NONE), "\n\n", NIL);
 
     Replaceall(proxy_class_decl_code, "$objcbaseclass", proxy_class_name);
     Replaceall(proxy_class_defn_code, "$objcbaseclass", proxy_class_name);
@@ -2038,6 +2095,22 @@ void OBJECTIVEC::emitProxyClass(Node *n)
     Delete(directordisconnect);
     Delete(destructor_decl);
     Delete(destructor_defn);
+    Delete(protocol_class_impl);
+    Delete(protocol_defs);
+}
+
+void OBJECTIVEC::emitProxyDirectorProtocol(Node *n) {
+    SwigType *typemap_lookup_type = Getattr(n, "classtypeobj");
+
+    // Default interface code
+    const String *objcinterfacecode = typemapLookup(n, "objcinterfacecode", typemap_lookup_type, WARN_NONE);
+
+    // the protocol
+    Printv(proxy_class_decl_code, 
+    "@protocol", " $objcclassname", "Protocol", " <NSObject>\n",
+    proxy_protocol_function_decls,
+    "@end\n\n",
+    NIL);
 }
 
 /* ---------------------------------------------------------------------------
