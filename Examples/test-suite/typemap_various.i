@@ -54,9 +54,13 @@ void CheckRetTypemapUsed() {
 %}
 
 %newobject FFoo::Bar(bool) const ;
-%typemap(newfree) char* Bar(bool)  {
+%typemap(newfree) char* Bar(bool) {
    /* hello */ delete[] result;
 }
+
+%{
+#include <string.h>
+%}
 
 %inline {
   class FFoo {

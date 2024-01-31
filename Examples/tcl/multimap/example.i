@@ -14,7 +14,7 @@ extern int squareCubed (int n, int *OUTPUT);
 
 extern int    gcd(int x, int y);
 
-%typemap(arginit) (int argc, char *argv[]) "$2 = 0;";
+%typemap(arginit) (int argc, char *argv[]) "$2 = 0;"
 
 %typemap(in) (int argc, char *argv[]) {
   Tcl_Obj **listobjv = 0;
@@ -25,15 +25,13 @@ extern int    gcd(int x, int y);
   }
   $2 = (char **) malloc(($1+1)*sizeof(char *));
   for (i = 0; i < $1; i++) {
-    $2[i] = Tcl_GetStringFromObj(listobjv[i],0);
+    $2[i] = Tcl_GetString(listobjv[i]);
   }
   $2[i] = 0;
 }
 
 %typemap(freearg) char *argv[] {
-  if ($1) {
-    free($1);
-  }
+  free($1);
 }
 
 extern int gcdmain(int argc, char *argv[]);

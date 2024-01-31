@@ -48,7 +48,7 @@ like this:
 
 <div class="code">
 <pre>
-%include "pointer.i"
+%include "cpointer.i"
 </pre>
 </div>
 
@@ -99,8 +99,23 @@ header files without generating any wrappers.
 <p>
 SWIG fully supports the use of <tt>#if</tt>, <tt>#ifdef</tt>,
 <tt>#ifndef</tt>, <tt>#else</tt>, <tt>#endif</tt> to conditionally
-include parts of an interface.  The following symbols are predefined
-by SWIG when it is parsing the interface:
+include parts of an interface.
+</p>
+
+<p>
+SWIG's preprocessor conditionals support the standard C/C++ preprocessor
+integer expressions.  As a SWIG-specific extension, string equality and
+inequality tests are also supported, for example:
+</p>
+
+<div class="code">
+<pre>
+#if defined __cplusplus &amp;&amp; (#__VA_ARGS__ != "" || #TYPE == "void")
+</pre>
+</div>
+
+<p>
+The following symbols are predefined by SWIG when it is parsing the interface:
 </p>
 
 <div class="code"><pre>
@@ -117,6 +132,7 @@ SWIGJAVA                        Defined when using Java
 SWIGJAVASCRIPT                  Defined when using Javascript
 SWIG_JAVASCRIPT_JSC             Defined when using Javascript with -jsc
 SWIG_JAVASCRIPT_V8              Defined when using Javascript with -v8 or -node
+SWIG_JAVASCRIPT_NAPI            Defined when using Javascript with -napi
 SWIGLUA                         Defined when using Lua
 SWIGMZSCHEME                    Defined when using Mzscheme
 SWIGOCAML                       Defined when using OCaml
@@ -133,6 +149,14 @@ SWIGXML                         Defined when using XML
 </pre></div>
 
 <p>
+SWIG also defines <tt>SWIG_VERSION</tt> and a target language macro in
+the generated wrapper file (since SWIG 4.1.0 - in older versions these
+were defined for some target languages but this wasn't consistent).  Best
+practice is to use SWIG-time conditional checks because that results in smaller
+generated wrapper sources.
+</p>
+
+<p>
 In addition, SWIG defines the following set of standard C/C++ macros:
 </p>
 
@@ -140,10 +164,43 @@ In addition, SWIG defines the following set of standard C/C++ macros:
 <pre>
 __LINE__                        Current line number
 __FILE__                        Current file name
-__STDC__                        Defined to indicate ISO C
-__cplusplus                     Defined when -c++ option used
+__STDC__                        Defined to indicate ISO C/C++
+__cplusplus                     Defined when -c++ option used, value controlled by <tt>-std=c++NN</tt>
+__STDC_VERSION__                May be defined when -c++ option is not used, value controlled by <tt>-std=cNN</tt>
 </pre>
 </div>
+
+<p>
+Since SWIG 4.2.0, <tt>__STDC__</tt> is defined to <tt>1</tt> to match
+the behaviour of ISO C/C++ compilers.  Before this SWIG defined it to
+have an empty value.
+</p>
+
+<p>
+Since SWIG 4.2.0, <tt>__cplusplus</tt> is defined to <tt>199711L</tt>
+(the value for C++98) by default. Before this SWIG always defined it to have
+the <b>value</b> <tt>__cplusplus</tt>.
+</p>
+
+<p>
+Since SWIG 4.2.0, SWIG supports command line options <tt>-std=cNN</tt> and
+<tt>-std=c++NN</tt> to specify the C/C++ standards version.  The only effect of
+these options is to set appropriate values for <tt>__STDC_VERSION__</tt> and
+<tt>__cplusplus</tt> respectively, which is useful if you're wrapping
+headers which have preprocessor checks based on their values.
+</p>
+
+<p>
+If your code requires these macros to be set to a version of the standard
+that is not a final official version, or one that SWIG is not yet aware of,
+you can simply redefine the appropriate macro to an alternative value at the
+top of your interface file, for example:
+</p>
+
+<div class="code"><pre>
+#undef __cplusplus
+#define __cplusplus 202211L
+</pre></div>
 
 <p>
 The following are language specific symbols that might be defined:
@@ -154,7 +211,6 @@ SWIG_D_VERSION                  Unsigned integer target version when using D
 SWIGGO_CGO                      Defined when using Go for cgo
 SWIGGO_GCCGO                    Defined when using Go for gccgo
 SWIGGO_INTGO_SIZE               Size of the Go type int when using Go (32 or 64)
-SWIGPYTHON_PY3                  Defined when using Python with -py3
 SWIGPYTHON_BUILTIN              Defined when using Python with -builtin
 SWIG_RUBY_AUTORENAME            Defined when using Ruby with -autorename
 </pre></div>
@@ -175,15 +231,15 @@ is also used to try and detect constants.  Therefore, if you have something like
 
 <div class="code">
 <pre>
-#ifndef _FOO_H 1
-#define _FOO_H 1
+#ifndef FOO_H 1
+#define FOO_H 1
 ...
 #endif
 </pre>
 </div>
 
 <p>
-you may get some extra constants such as <tt>_FOO_H</tt> showing up in the scripting interface.
+you may get some extra constants such as <tt>FOO_H</tt> showing up in the scripting interface.
 </p>
 
 <p>

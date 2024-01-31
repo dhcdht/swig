@@ -11,7 +11,7 @@
 
 typedef int (*V8ExtensionInitializer) (v8::Handle<v8::Object> module);
 
-// Note: these typedefs and defines are used to deal with  v8 API changes since version 3.19.00
+// Note: these typedefs and defines are used to deal with v8 API changes since version 3.19.00
 
 typedef void SwigV8ReturnValue;
 typedef v8::FunctionCallbackInfo<v8::Value> SwigV8Arguments;
@@ -257,7 +257,7 @@ SwigV8ReturnValue V8Shell::Require(const SwigV8Arguments &args) {
 
   if (args.Length() != 1) {
     printf("Illegal arguments for `require`");
-  };
+  }
 
   v8::String::Utf8Value str(args[0]);
   const char *cstr = V8Shell::ToCString(str);

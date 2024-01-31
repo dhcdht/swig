@@ -53,6 +53,7 @@ typedef v8::PropertyCallbackInfo<v8::Value> SwigV8PropertyCallbackInfo;
 #define SWIGV8_FUNCTION_TEMPLATE v8::Local<v8::FunctionTemplate>
 #define SWIGV8_OBJECT v8::Local<v8::Object>
 #define SWIGV8_OBJECT_TEMPLATE v8::Local<v8::ObjectTemplate>
+#define SWIGV8_OBJECT_TEMPLATE_NEW() v8::ObjectTemplate::New(v8::Isolate::GetCurrent())
 #define SWIGV8_VALUE v8::Local<v8::Value>
 #define SWIGV8_NULL() v8::Null(v8::Isolate::GetCurrent())
 #define SWIGV8_ARRAY_GET(array, index) (array)->Get(SWIGV8_CURRENT_CONTEXT(), index).ToLocalChecked()
@@ -68,6 +69,7 @@ typedef v8::PropertyCallbackInfo<v8::Value> SwigV8PropertyCallbackInfo;
 #define SWIGV8_BOOLEAN_VALUE(handle) (handle)->BooleanValue()
 #define SWIGV8_WRITE_UTF8(handle, buffer, len) (handle)->WriteUtf8(buffer, len)
 #define SWIGV8_UTF8_LENGTH(handle) (handle)->Utf8Length()
+#define SWIGV8_OBJECT_TEMPLATE_INSTACE(tmpl) tmpl->NewInstance();
 #else
 #define SWIGV8_TO_OBJECT(handle) (handle)->ToObject(SWIGV8_CURRENT_CONTEXT()).ToLocalChecked()
 #define SWIGV8_TO_STRING(handle) (handle)->ToString(SWIGV8_CURRENT_CONTEXT()).ToLocalChecked()
@@ -75,6 +77,7 @@ typedef v8::PropertyCallbackInfo<v8::Value> SwigV8PropertyCallbackInfo;
 #define SWIGV8_INTEGER_VALUE(handle) (handle)->IntegerValue(SWIGV8_CURRENT_CONTEXT()).ToChecked()
 #define SWIGV8_WRITE_UTF8(handle, buffer, len) (handle)->WriteUtf8(v8::Isolate::GetCurrent(), buffer, len)
 #define SWIGV8_UTF8_LENGTH(handle) (handle)->Utf8Length(v8::Isolate::GetCurrent())
+#define SWIGV8_OBJECT_TEMPLATE_INSTACE(tmpl) tmpl->NewInstance(SWIGV8_CURRENT_CONTEXT()).ToLocalChecked();
 #if (SWIG_V8_VERSION < 0x0704)
 #define SWIGV8_BOOLEAN_VALUE(handle) (handle)->BooleanValue(SWIGV8_CURRENT_CONTEXT()).ToChecked()
 #else
@@ -95,6 +98,11 @@ typedef v8::PropertyCallbackInfo<v8::Value> SwigV8PropertyCallbackInfo;
 SWIGINTERN void SWIG_V8_Raise(const char *msg) {
   SWIGV8_THROW_EXCEPTION(v8::Exception::Error(SWIGV8_STRING_NEW(msg)));
 }
+
+SWIGINTERN void SWIG_V8_Raise(SWIGV8_VALUE obj, const char *msg) {
+  SWIGV8_THROW_EXCEPTION(v8::Exception::Error(SWIGV8_TO_STRING(obj)));
+}
+
 
 /*
   Note: There are two contexts for handling errors.
@@ -178,7 +186,7 @@ SWIGRUNTIME int SWIG_V8_ConvertInstancePtr(SWIGV8_OBJECT objRef, void **ptr, swi
   if(cdata == NULL) {
     return SWIG_ERROR;
   }
-  if(cdata->info != info) {
+  if(info && cdata->info != info) {
     swig_cast_info *tc = SWIG_TypeCheckStruct(cdata->info, info);
     if (!tc && cdata->info->name) {
       tc = SWIG_TypeCheck(cdata->info->name, info);
@@ -194,8 +202,15 @@ SWIGRUNTIME int SWIG_V8_ConvertInstancePtr(SWIGV8_OBJECT objRef, void **ptr, swi
     *ptr = cdata->swigCObject;
   }
 
-  if(flags & SWIG_POINTER_DISOWN) {
-    cdata->swigCMemOwn = false;
+  if (((flags & SWIG_POINTER_RELEASE) == SWIG_POINTER_RELEASE) && !cdata->swigCMemOwn) {
+    return SWIG_ERROR_RELEASE_NOT_OWNED;
+  } else {
+    if (flags & SWIG_POINTER_DISOWN) {
+      cdata->swigCMemOwn = false;
+    }
+    if (flags & SWIG_POINTER_CLEAR) {
+      cdata->swigCObject = 0;
+    }
   }
   return SWIG_OK;
 }
@@ -358,9 +373,14 @@ fail:
 
 class SwigV8PackedData {
 public:
-  SwigV8PackedData(void *data, size_t size, swig_type_info *type): data(data), size(size), type(type) {};
+  SwigV8PackedData(void *data, size_t size, swig_type_info *type): data(nullptr), size(size), type(type) {
+    this->data = malloc(size);
+    if (this->data != nullptr)
+      memcpy(this->data, data, size);
+  };
 
   ~SwigV8PackedData() {
+    free(this->data);
   };
 
   void *data;
@@ -417,6 +437,7 @@ int SWIGV8_ConvertPacked(SWIGV8_VALUE valRef, void *ptr, size_t sz, swig_type_in
 
 SWIGRUNTIME void _wrap_SwigV8PackedData_delete(const v8::WeakCallbackInfo<SwigV8PackedData> &data) {
   SwigV8PackedData *cdata = data.GetParameter();
+  cdata->handle.Reset();
   delete cdata;
 }
 
@@ -425,8 +446,9 @@ SWIGV8_VALUE SWIGV8_NewPackedObj(void *data, size_t size, swig_type_info *type) 
   SWIGV8_HANDLESCOPE_ESC();
 
   SwigV8PackedData *cdata = new SwigV8PackedData(data, size, type);
-//  v8::Handle<v8::Object> obj = SWIGV8_OBJECT_NEW();
-  v8::Local<v8::Object> obj = SWIGV8_OBJECT_NEW();
+  SWIGV8_OBJECT_TEMPLATE tmpl = SWIGV8_OBJECT_TEMPLATE_NEW();
+  tmpl->SetInternalFieldCount(1);
+  v8::Local<v8::Object> obj = SWIGV8_OBJECT_TEMPLATE_INSTACE(tmpl);
 
   v8::Local<v8::Private> privateKey = v8::Private::ForApi(v8::Isolate::GetCurrent(), SWIGV8_STRING_NEW("__swig__packed_data__"));
   obj->SetPrivate(SWIGV8_CURRENT_CONTEXT(), privateKey, SWIGV8_BOOLEAN_NEW(true));
