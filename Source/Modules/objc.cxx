@@ -2731,7 +2731,8 @@ int OBJECTIVEC::classDirectorMethod(Node *n, Node *parent, String *super)
         Printf(w->code, "::id swigjobj = swig_get_self();\n");
         Printf(w->code, "BOOL swigmethodoverridden = NO;\n");
         Printf(w->code, "if (swigjobj) {\n");
-        Printf(w->code, "  swigmethodoverridden = [swigjobj methodForSelector:@selector(%s)] != [%s instanceMethodForSelector:@selector(%s)];\n", method_signature, classname, method_signature);
+        // Printf(w->code, "  swigmethodoverridden = [swigjobj methodForSelector:@selector(%s)] != [%s instanceMethodForSelector:@selector(%s)];\n", method_signature, classname, method_signature);
+        Printf(w->code, "  swigmethodoverridden = YES;\n");
         Printf(w->code, "}\n");
         Printf(w->code, "if (!swigmethodoverridden) {\n");
 
