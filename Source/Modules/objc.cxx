@@ -1513,7 +1513,22 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     String *function_decl = NewString("");
     String *protocol_decl = NewString("");
     String *protocol_defn = NewString("");
+    String *block_decl = NewString("");
+    String *block_call = NewString("");
+    String *protocol_impl = NewString("");
     String *tm;
+
+    Node *clsNode = parentNode(n);
+    int block_flag = 0;
+    if (directorsEnabled()) {
+        int ndir = GetFlag(clsNode, "feature:director");
+        int nndir = GetFlag(clsNode, "feature:nodirector");
+        /* 'nodirector' has precedence over 'director' */
+        block_flag = (ndir || nndir) ? (ndir && !nndir) : 0;
+    }
+    if (block_flag) {
+        Printv(block_decl, "@property (nonatomic, copy) ", NIL);
+    }
 
     String *imfunctionname = Getattr(n, "imfunctionname");
     String *proxyfunctionname;
@@ -1557,6 +1572,10 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
 
     /* Write the proxy function declaration and definition */
     Printf(protocol_decl, "@required\n");
+    if (block_flag) {
+        Printv(block_decl, objcrettype, NIL);
+        Printf(block_decl, "(^%s)(", name);
+    }
 
     // Begin the first line of the function declaration
     if (static_flag) {
@@ -1571,6 +1590,9 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     // Prepare the call to intermediate function
     Printv(imcall, imfunctionname, "(", NIL);
     Printv(protocol_defn, "return [_delegate ", proxyfunctionname, NIL);
+    if (block_flag) {
+        Printf(block_call, "return self.%s(", proxyfunctionname);
+    }
 
     // Attach the non-standard typemaps to the parameter list
     Swig_typemap_attach_parms("in", parmlist, NULL);
@@ -1629,6 +1651,15 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
                 Printf(protocol_decl, " %s: (%s)%s", arg, objcparmtype, arg);
                 Printf(protocol_defn, " %s:%s", arg, arg);
             }
+
+            if (block_flag && gencomma >= 0) {
+                Printf(block_decl, "%s %s", objcparmtype, arg);
+                Printf(block_call, "%s", arg);
+                if (nextSibling(p) != nullptr) {
+                    Printv(block_decl, ", ", NIL);
+                    Printv(block_call, ", ", NIL);
+                }
+            }
         }
         else
         {
@@ -1642,11 +1673,25 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
                 Printf(protocol_decl, " %s: (%s)%s", arg, objcparmtype, arg);
                 Printf(protocol_defn, " %s:%s", arg, arg);
             }
+
+            if (block_flag && gencomma >= 1) {
+                Printf(block_decl, "%s %s", objcparmtype, arg);
+                Printf(block_call, "%s", arg);
+                if (nextSibling(p) != nullptr) {
+                    Printv(block_decl, ", ", NIL);
+                    Printv(block_call, ", ", NIL);
+                }
+            }
         }
         gencomma++;
 
         Delete(arg);
         Delete(objcparmtype);
+    }
+
+    if (block_flag) {
+        Printf(block_decl, ");\n");
+        Printf(block_call, ");\n");
     }
 
     // First line of function definition
@@ -1656,6 +1701,8 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     Printf(protocol_defn, "];");
     if (GetFlag(n, "explicitcall")) {
         Clear(protocol_decl);
+        Clear(block_decl);
+        Clear(function_decl);
     }
 
     // End the call to the intermediate function
@@ -1676,10 +1723,25 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     else
         Replaceall(tm, "$owner", "false");
     substituteClassname(tm, type);
-    if (!Swig_directorclass(n) || GetFlag(n, "explicitcall")) {
-        Printf(function_defn, " %s\n}\n", tm ? ((const String *)tm) : empty_string);
+
+    if (block_flag) {
+        Printf(protocol_impl, "if (self.%s) {\n", proxyfunctionname);
+        Printf(protocol_impl, "\t\t%s", block_call);
+        Printf(protocol_impl, "\t} else {\n");
+        Printf(protocol_impl, "\t\t%s\n", protocol_defn);
+        Printf(protocol_impl, "\t}");
     } else {
-        Printf(function_defn, "\t%s\n}\n", protocol_defn);
+        Printv(protocol_impl, protocol_defn, NIL);
+    }
+
+    if (!Swig_directorclass(n) || GetFlag(n, "explicitcall")) {
+        if (block_flag) {
+            Clear(function_defn);
+        } else {
+            Printf(function_defn, " %s\n}\n", tm ? ((const String *)tm) : empty_string);
+        }
+    } else {
+        Printf(function_defn, "\t%s\n}\n", protocol_impl);
     }
 
     // Write documentation
@@ -1694,6 +1756,9 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
 
     /* Write the function declaration to the proxy_class_function_decls
      and function definition to the proxy_class_function_defns */
+    if (block_flag) {
+        Printv(proxy_class_function_decls, block_decl, NIL);
+    }
     Printv(proxy_protocol_function_decls, protocol_decl, NIL);
     Printv(proxy_class_function_decls, function_decl, "\n", NIL);
     Printv(proxy_class_function_defns, function_defn, "\n", NIL);
@@ -1706,6 +1771,9 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     Delete(protocol_decl);
     Delete(function_defn);
     Delete(protocol_defn);
+    Delete(block_decl);
+    Delete(block_call);
+    Delete(protocol_impl);
 }
 
 /* -----------------------------------------------------------------------------
@@ -1818,7 +1886,11 @@ void OBJECTIVEC::emitProxyClassConstructor(Node *n)
     Printv(directorconnect, "", NIL);
     if (feature_director)
     {
-        Printf(directorconnect, "if (self) %s((void *)swigCPtr, self); ", Swig_name_wrapper("swigDirectorConnect"));
+        String *wrapper_name = NewString("swigDirectorConnect");
+        Printf(wrapper_name, "_%s", name);
+
+        Printf(directorconnect, "if (self) %s((void *)swigCPtr, self); ", Swig_name_wrapper(wrapper_name));
+        Delete(wrapper_name);
     }
 
     // Insert the objcconstructor typemap
@@ -1972,7 +2044,11 @@ void OBJECTIVEC::emitProxyClass(Node *n)
     Printv(directordisconnect, "", NIL);
     if (feature_director)
     {
-        Printf(directordisconnect, "%s((void *)swigCPtr);", Swig_name_wrapper("swigDirectorDisconnect"));
+        String *wrapper_name = NewString("swigDirectorDisconnect");
+        Printf(wrapper_name, "_%s", Getattr(n, "name"));
+
+        Printf(directordisconnect, "%s((void *)swigCPtr);", Swig_name_wrapper(wrapper_name));
+        Delete(wrapper_name);
     }
 
     if (tm && *Char(tm))
@@ -3086,8 +3162,14 @@ void OBJECTIVEC::emitDirectorExtraMethods(Node *n)
 
     // Output the director connect method:
     String *norm_name = SwigType_namestr(Getattr(n, "name"));
-    String *swig_director_connect = Swig_name_wrapper("swigDirectorConnect");
-    String *swig_director_disconnect = Swig_name_wrapper("swigDirectorDisconnect");
+
+    String *connect_name = NewString("swigDirectorConnect");
+    String *disconnect_name = NewString("swigDirectorDisconnect");
+    Printf(connect_name, "_%s", norm_name);
+    Printf(disconnect_name, "_%s", norm_name);
+
+    String *swig_director_connect = Swig_name_wrapper(connect_name);
+    String *swig_director_disconnect = Swig_name_wrapper(disconnect_name);
     String *sym_name = Getattr(n, "sym:name");
     String *dirClassName = directorClassName(n);
     String *smartptr = Getattr(n, "feature:smartptr");
@@ -3133,6 +3215,8 @@ void OBJECTIVEC::emitDirectorExtraMethods(Node *n)
     Delete(swig_director_connect);
     Delete(swig_director_disconnect);
     Delete(norm_name);
+    Delete(connect_name);
+    Delete(disconnect_name);
 }
 
 /* ------------------------------------------------------------
