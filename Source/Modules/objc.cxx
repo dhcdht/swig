@@ -944,7 +944,10 @@ int OBJECTIVEC::enumvalueDeclaration(Node *n)
     }
     else
     {
-        enumname = Copy(symname);
+        char *symnameChar = Char(symname);
+        *symnameChar = toupper(*symnameChar);
+        String *classname = Getattr(parent, "sym:name");
+        enumname = NewStringf("Cpp%s%s", classname, symnameChar);
     }
     if (proxy_flag)
     { // Emit the enum item
