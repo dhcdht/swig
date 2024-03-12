@@ -295,6 +295,19 @@
                          float, 
                          double
   "$iminput"
+%typemap(objcdirectorin) char *, 
+                         signed char *, 
+                         unsigned char *, 
+                         short *, 
+                         unsigned short *, 
+                         int *, 
+                         unsigned int *, 
+                         long *, 
+                         unsigned long *, 
+                         long long *, 
+                         float *, 
+                         double *
+  "$iminput"
 %typemap(objcdirectorout) char, 
                          signed char, 
                          unsigned char, 
@@ -485,7 +498,7 @@
 %typemap(out) SWIGTYPE [] %{ $result = $1; %}
 
 %typemap(directorin) SWIGTYPE *
-%{ $input = (void *) $1; %}
+%{ $input = ($1_ltype) $1; %}
 
 %typemap(directorin) SWIGTYPE &
 %{ $input = ($1_ltype) &$1; %}
