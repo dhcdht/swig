@@ -53,9 +53,9 @@ extern "C" {
 
 static TargetLanguageModule modules[] = {
   {"-allegrocl", NULL, "ALLEGROCL", Disabled},
+  {"-cffi", NULL, "CFFI", Disabled},
   {"-chicken", NULL, "CHICKEN", Disabled},
   {"-clisp", NULL, "CLISP", Disabled},
-  {"-cffi", NULL, "CFFI", Disabled},
   {"-csharp", swig_csharp, "C#", Supported},
   {"-objc", swig_objectivec, "Objective C", Experimental},
   {"-d", swig_d, "D", Supported},
