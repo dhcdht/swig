@@ -68,7 +68,6 @@ CCache/config.log
 CCache/config.status
 CCache/config_win32.h
 Examples/Makefile
-Examples/d/example.mk
 Examples/guile/Makefile
 Examples/test-suite/*/Makefile
 Examples/xml/Makefile
@@ -81,7 +80,6 @@ Tools/javascript/Makefile
 config.log
 config.status
 preinst-swig
-swig.spec
 
 # Build Artifacts
 .dirstamp
@@ -159,6 +157,14 @@ Examples/java/doxygen/javadocs
 # Javascript
 Examples/test-suite/javascript/*/
 *.gyp
+
+# Lua
+Examples/lua/dual/dual
+Examples/lua/dual/swigluarun.h
+Examples/lua/embed/embed
+Examples/lua/embed2/embed2
+Examples/lua/embed3/embed3
+Examples/lua/embed3/swigluarun.h
 
 # OCaml
 Examples/test-suite/ocaml/*.ml*

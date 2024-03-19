@@ -4,7 +4,7 @@
  * terms also apply to certain portions of SWIG. The full details of the SWIG
  * license and copyrights can be found in the LICENSE and COPYRIGHT files
  * included with the SWIG source code as distributed by the SWIG developers
- * and at http://www.swig.org/legal.html.
+ * and at https://www.swig.org/legal.html.
  *
  * pydoc.cxx
  *
@@ -302,7 +302,7 @@ void PyDocConverter::fillStaticTables() {
   tagHandlers["ref"] = make_handler(&PyDocConverter::handleTagRef);
   tagHandlers["result"] = tagHandlers["return"] = tagHandlers["returns"] = make_handler(&PyDocConverter::handleTagReturn);
 
-  // this command just prints it's contents
+  // this command just prints its contents
   // (it is internal command of swig's parser, contains plain text)
   tagHandlers["plainstd::string"] = make_handler(&PyDocConverter::handlePlainString);
   tagHandlers["plainstd::endl"] = make_handler(&PyDocConverter::handleNewLine);
@@ -400,7 +400,7 @@ static std::string getPyDocType(Node *n, const_String_or_char_ptr lname = "") {
   String *s = Swig_typemap_lookup("doctype", n, lname, 0);
   if (!s) {
     if (String *t = Getattr(n, "type"))
-      s = SwigType_str(t, "");
+      s = SwigType_str(t, NULL);
   }
 
   if (!s)
@@ -942,7 +942,7 @@ String *PyDocConverter::makeDocumentation(Node *n) {
       for (size_t realOverloadCount = 0; realOverloadCount < allDocumentation.size(); realOverloadCount++) {
         if (realOverloadCount != 0) {
           // separate it from the preceding one.
-          concatDocString << "\n" << indentStr << "|\n\n";
+          concatDocString << '\n' << indentStr << "|\n\n";
         }
 
         oneDoc = allDocumentation[realOverloadCount];

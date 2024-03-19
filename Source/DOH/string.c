@@ -4,7 +4,7 @@
  * terms also apply to certain portions of SWIG. The full details of the SWIG
  * license and copyrights can be found in the LICENSE and COPYRIGHT files
  * included with the SWIG source code as distributed by the SWIG developers
- * and at http://www.swig.org/legal.html.
+ * and at https://www.swig.org/legal.html.
  *
  * string.c
  *
@@ -180,19 +180,27 @@ static int String_hash(DOH *so) {
   if (s->hashkey >= 0) {
     return s->hashkey;
   } else {
-    char *c = s->str;
+    /* We use the djb2 hash function: https://theartincode.stanis.me/008-djb2/
+     *
+     * One difference is we use initial seed 0.  It seems the usual seed value
+     * is intended to help spread out hash values, which is beneficial if
+     * linear probing is used but DOH Hash uses a chain of buckets instead, and
+     * grouped hash values are probably more cache friendly.  In tests using
+     * 0 seems slightly faster anyway.
+     */
+    const char *c = s->str;
     unsigned int len = s->len > 50 ? 50 : s->len;
     unsigned int h = 0;
     unsigned int mlen = len >> 2;
     unsigned int i = mlen;
     for (; i; --i) {
-      h = (h << 5) + *(c++);
-      h = (h << 5) + *(c++);
-      h = (h << 5) + *(c++);
-      h = (h << 5) + *(c++);
+      h = h + (h << 5) + *(c++);
+      h = h + (h << 5) + *(c++);
+      h = h + (h << 5) + *(c++);
+      h = h + (h << 5) + *(c++);
     }
     for (i = len - (mlen << 2); i; --i) {
-      h = (h << 5) + *(c++);
+      h = h + (h << 5) + *(c++);
     }
     h &= 0x7fffffff;
     s->hashkey = (int)h;
@@ -229,7 +237,6 @@ static void DohString_append(DOH *so, const DOHString_or_char *str) {
     if (newlen >= newmaxsize - 1)
       newmaxsize = newlen + 1;
     s->str = (char *) DohRealloc(s->str, newmaxsize);
-    assert(s->str);
     s->maxsize = newmaxsize;
   }
   tc = s->str;
@@ -249,7 +256,9 @@ static void DohString_append(DOH *so, const DOHString_or_char *str) {
 
 
 /* -----------------------------------------------------------------------------
- * String_clear() - Clear a string
+ * String_clear() - Clear string contents
+ *
+ * File and line numbering info left unmodified.
  * ----------------------------------------------------------------------------- */
 
 static void String_clear(DOH *so) {
@@ -258,7 +267,6 @@ static void String_clear(DOH *so) {
   s->len = 0;
   *(s->str) = 0;
   s->sp = 0;
-  s->line = 1;
 }
 
 /* -----------------------------------------------------------------------------
@@ -296,7 +304,6 @@ static int String_insert(DOH *so, int pos, DOH *str) {
   while (s->maxsize <= s->len + len) {
     int newsize = 2 * s->maxsize;
     s->str = (char *) DohRealloc(s->str, newsize);
-    assert(s->str);
     s->maxsize = newsize;
   }
   memmove(s->str + pos + len, s->str + pos, (s->len - pos));
@@ -424,7 +431,6 @@ static int String_write(DOH *so, const void *buffer, int len) {
   newlen = s->sp + len + 1;
   if (newlen > s->maxsize) {
     s->str = (char *) DohRealloc(s->str, newlen);
-    assert(s->str);
     s->maxsize = newlen;
     s->len = s->sp + len;
   }
@@ -517,7 +523,6 @@ static int String_putc(DOH *so, int ch) {
     if (len > (maxsize - 2)) {
       maxsize *= 2;
       tc = (char *) DohRealloc(tc, maxsize);
-      assert(tc);
       s->maxsize = (int) maxsize;
       s->str = tc;
     }
@@ -614,11 +619,13 @@ static char *match_identifier(char *base, char *s, char *token, int tokenlen) {
     if (!s)
       return 0;
     if ((s > base) && (isalnum((int) *(s - 1)) || (*(s - 1) == '_'))) {
-      s += tokenlen;
+      /* We could advance by tokenlen if strstr(s, token) matches can't overlap. */
+      ++s;
       continue;
     }
     if (isalnum((int) *(s + tokenlen)) || (*(s + tokenlen) == '_')) {
-      s += tokenlen;
+      /* We could advance by tokenlen if strstr(s, token) matches can't overlap. */
+      ++s;
       continue;
     }
     return s;
@@ -628,12 +635,14 @@ static char *match_identifier(char *base, char *s, char *token, int tokenlen) {
 
 
 static char *match_identifier_begin(char *base, char *s, char *token, int tokenlen) {
+  (void)tokenlen;
   while (s) {
     s = strstr(s, token);
     if (!s)
       return 0;
     if ((s > base) && (isalnum((int) *(s - 1)) || (*(s - 1) == '_'))) {
-      s += tokenlen;
+      /* We could advance by tokenlen if strstr(s, token) matches can't overlap. */
+      ++s;
       continue;
     }
     return s;
@@ -648,7 +657,8 @@ static char *match_identifier_end(char *base, char *s, char *token, int tokenlen
     if (!s)
       return 0;
     if (isalnum((int) *(s + tokenlen)) || (*(s + tokenlen) == '_')) {
-      s += tokenlen;
+      /* We could advance by tokenlen if strstr(s, token) matches can't overlap. */
+      ++s;
       continue;
     }
     return s;
@@ -663,7 +673,8 @@ static char *match_number_end(char *base, char *s, char *token, int tokenlen) {
     if (!s)
       return 0;
     if (isdigit((int) *(s + tokenlen))) {
-      s += tokenlen;
+      /* We could advance by tokenlen if strstr(s, token) matches can't overlap. */
+      ++s;
       continue;
     }
     return s;
@@ -923,7 +934,6 @@ static int replace_simple(String *str, char *token, char *rep, int flags, int co
       newsize *= 2;
 
     ns = (char *) DohMalloc(newsize);
-    assert(ns);
     t = ns;
     s = first;
 
@@ -1153,7 +1163,7 @@ DOHString *DohNewString(const DOHString_or_char *so) {
   str = (String *) DohMalloc(sizeof(String));
   str->hashkey = hashkey;
   str->sp = 0;
-  str->line = 1;
+  str->line = 0;
   str->file = 0;
   max = INIT_MAXSIZE;
   if (s) {
@@ -1183,7 +1193,7 @@ DOHString *DohNewStringEmpty(void) {
   String *str = (String *) DohMalloc(sizeof(String));
   str->hashkey = 0;
   str->sp = 0;
-  str->line = 1;
+  str->line = 0;
   str->file = 0;
   str->str = (char *) DohMalloc(max);
   str->maxsize = max;
@@ -1209,7 +1219,7 @@ DOHString *DohNewStringWithSize(const DOHString_or_char *so, int len) {
   str = (String *) DohMalloc(sizeof(String));
   str->hashkey = -1;
   str->sp = 0;
-  str->line = 1;
+  str->line = 0;
   str->file = 0;
   max = INIT_MAXSIZE;
   if (s) {

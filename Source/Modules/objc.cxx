@@ -130,7 +130,7 @@ public:
                    empty_string(NewString(""))
     {
         director_multiple_inheritance = 0;
-        director_language = 1;
+        directorLanguage();
     }
 
     ~OBJECTIVEC()
@@ -341,7 +341,7 @@ int OBJECTIVEC::top(Node *n)
     if (!outfile)
     {
         Printf(stderr, "Unable to determine outfile\n");
-        SWIG_exit(EXIT_FAILURE);
+        Exit(EXIT_FAILURE);
     }
 
     // Create the _wrap files
@@ -350,14 +350,14 @@ int OBJECTIVEC::top(Node *n)
     if (!f_wrap_h)
     {
         FileErrorDisplay(wrapfile_h);
-        SWIG_exit(EXIT_FAILURE);
+        Exit(EXIT_FAILURE);
     }
     String *wrapfile_mm = NewString(outfile);
     f_wrap_mm = NewFile(wrapfile_mm, "w", SWIG_output_files());
     if (!f_wrap_mm)
     {
         FileErrorDisplay(wrapfile_mm);
-        SWIG_exit(EXIT_FAILURE);
+        Exit(EXIT_FAILURE);
     }
     Delete(wrapfile_h);
     Delete(wrapfile_mm);
@@ -370,14 +370,14 @@ int OBJECTIVEC::top(Node *n)
         if (!f_proxy_h)
         {
             FileErrorDisplay(proxyfile_h);
-            SWIG_exit(EXIT_FAILURE);
+            Exit(EXIT_FAILURE);
         }
         String *proxyfile_mm = NewStringf("%s%s_proxy.mm", SWIG_output_directory(), module);
         f_proxy_mm = NewFile(proxyfile_mm, "w", SWIG_output_files());
         if (!f_proxy_mm)
         {
             FileErrorDisplay(proxyfile_mm);
-            SWIG_exit(EXIT_FAILURE);
+            Exit(EXIT_FAILURE);
         }
         Delete(proxyfile_h);
         Delete(proxyfile_mm);
@@ -454,7 +454,7 @@ int OBJECTIVEC::top(Node *n)
         unknown_types = NewHash();
     }
 
-    if (directorsEnabled())
+    if (Swig_directors_enabled())
     {
         Printf(f_runtime, "#define SWIG_DIRECTORS\n");
 
@@ -469,7 +469,7 @@ int OBJECTIVEC::top(Node *n)
     /* Emit code for children */
     Language::top(n);
 
-    if (directorsEnabled())
+    if (Swig_directors_enabled())
     {
         // Insert director runtime into the f_runtime file (make it occur before %header section)
         Swig_insert_file("director.swg", f_runtime);
@@ -481,7 +481,7 @@ int OBJECTIVEC::top(Node *n)
     Dump(f_header, f_wrap_mm);
 
     // Copy director code
-    if (directorsEnabled())
+    if (Swig_directors_enabled())
     {
         Dump(f_directors, f_wrap_mm);
         Dump(f_directors_h, f_wrap_h);
@@ -1523,7 +1523,7 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
 
     Node *clsNode = parentNode(n);
     int block_flag = 0;
-    if (directorsEnabled()) {
+    if (Swig_directors_enabled()) {
         int ndir = GetFlag(clsNode, "feature:director");
         int nndir = GetFlag(clsNode, "feature:nodirector");
         /* 'nodirector' has precedence over 'director' */
