@@ -1553,7 +1553,16 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     if (member_variable_flag || static_member_variable_flag || member_constant_flag)
     {
         proxyfunctionname = NewString("");
-        setter_flag = Cmp(symname, Swig_name_set(getNSpace(), Swig_name_member(0, proxy_class_name, variable_name))) == 0;
+        String *memberName = Swig_name_set(getNSpace(), Swig_name_member(0, proxy_class_name, variable_name));
+
+        String *tempSymname;
+        if (Strncmp(memberName, "Cpp", 3) == 0) {
+            tempSymname = NewStringf("Cpp%s", symname);
+        } else {
+            tempSymname = Copy(symname);
+        }
+
+        setter_flag = Cmp(tempSymname, memberName) == 0;
         if (setter_flag)
             Printf(proxyfunctionname, "set");
         else
@@ -1561,6 +1570,8 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
         // Capitalize the first letter in the variable to create an ObjectiveC proxy function name
         Putc(toupper((int)*Char(variable_name)), proxyfunctionname);
         Printf(proxyfunctionname, "%s", Char(variable_name) + 1);
+
+        Delete(tempSymname);
     }
     else if (member_func_flag)
     {
