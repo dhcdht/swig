@@ -204,5 +204,5 @@ namespace std {
 
 %template(FloatVector) std::vector<float>;
 %template(FloatVectorVector) std::vector<std::vector<float>>;
-%template(Int32Vector) std::vector<int32_t>;
-%template(Int64Vector) std::vector<int64_t>;
+%template(Int32Vector) std::vector<int>;
+%template(Int64Vector) std::vector<long long>;
