@@ -201,3 +201,8 @@ namespace std {
 %define specialize_std_vector(T)
 #warning "specialize_std_vector - specialization for type T no longer needed"
 %enddef
+
+%template(FloatVector) std::vector<float>;
+%template(FloatVectorVector) std::vector<std::vector<float>>;
+%template(Int32Vector) std::vector<int32_t>;
+%template(Int64Vector) std::vector<int64_t>;
