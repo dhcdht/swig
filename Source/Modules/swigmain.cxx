@@ -45,6 +45,7 @@ extern "C" {
   Language *swig_scilab(void);
   Language *swig_tcl(void);
   Language *swig_xml(void);
+  Language *swig_dart(void);
 }
 
 /* Association of command line options to language modules.
@@ -83,6 +84,7 @@ static TargetLanguageModule modules[] = {
   {"-tcl8", swig_tcl, "Tcl 8", Supported},
   {"-uffi", NULL, "Common Lisp / UFFI", Disabled},
   {"-xml", swig_xml, "XML", Supported},
+  {"-dart", swig_dart, "Dart", Experimental},
   {NULL, NULL, NULL, Disabled}
 };
 
