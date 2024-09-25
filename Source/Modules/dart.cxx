@@ -46,7 +46,7 @@ class dart:public Language {
   bool global_variable_flag;	// Flag for when wrapping a global variable
   bool old_variable_names;	// Flag for old style variable names in the intermediary class
   bool member_func_flag;	// flag set when wrapping a member function
-  bool doxygen;			//flag for converting found doxygen to dartdoc
+  // bool doxygen;			//flag for converting found doxygen to dartdoc
   bool comment_creation_chatter; //flag for getting information about where comments were created in dart.cxx
   
   String *imclass_name;		// intermediary class name
@@ -123,7 +123,7 @@ public:
       global_variable_flag(false),
       old_variable_names(false),
       member_func_flag(false),
-      doxygen(false),
+      // doxygen(false),
       comment_creation_chatter(false),
       imclass_name(NULL),
       module_class_name(NULL),
@@ -287,15 +287,17 @@ public:
 	  }
 	} else if ((strcmp(argv[i], "-doxygen") == 0)) {
 	  Swig_mark_arg(i);
-	  doxygen = true;
+	  // doxygen = true;
 	  scan_doxygen_comments = true;
-	} else if ((strcmp(argv[i], "-debug-doxygen-translator") == 0)) {
-	  Swig_mark_arg(i);
-	  doxygen_translator_flags |= DoxygenTranslator::debug_translator;
-	} else if ((strcmp(argv[i], "-debug-doxygen-parser") == 0)) {
-	  Swig_mark_arg(i);
-	  doxygen_translator_flags |= DoxygenTranslator::debug_parser;
-	} else if ((strcmp(argv[i], "-noproxy") == 0)) {
+	} 
+  // else if ((strcmp(argv[i], "-debug-doxygen-translator") == 0)) {
+	//   Swig_mark_arg(i);
+	//   doxygen_translator_flags |= DoxygenTranslator::debug_translator;
+	// } else if ((strcmp(argv[i], "-debug-doxygen-parser") == 0)) {
+	//   Swig_mark_arg(i);
+	//   doxygen_translator_flags |= DoxygenTranslator::debug_parser;
+	// } 
+  else if ((strcmp(argv[i], "-noproxy") == 0)) {
 	  Swig_mark_arg(i);
 	  proxy_flag = false;
 	} else if (strcmp(argv[i], "-nopgcpp") == 0) {
@@ -310,8 +312,8 @@ public:
       }
     }
     
-    if (doxygen)
-      doxygenTranslator = new dartDocConverter(doxygen_translator_flags);
+    // if (doxygen)
+    //   doxygenTranslator = new dartDocConverter(doxygen_translator_flags);
 
     // Add a symbol to the parser for conditional compilation
     Preprocessor_define("SWIGdart 1", 0);
@@ -583,13 +585,13 @@ public:
       if (module_imports)
 	Printf(f_module, "%s\n", module_imports);
 
-      if (doxygen && doxygenTranslator->hasDocumentation(n)) {
-	String *doxygen_comments = doxygenTranslator->getDocumentation(n, 0);
-	if (comment_creation_chatter)
-	  Printf(f_module, "/* This was generated from top() */\n");
-	Printv(f_module, Char(doxygen_comments), NIL);
-	Delete(doxygen_comments);
-      }
+  //     if (doxygen && doxygenTranslator->hasDocumentation(n)) {
+	// String *doxygen_comments = doxygenTranslator->getDocumentation(n, 0);
+	// if (comment_creation_chatter)
+	//   Printf(f_module, "/* This was generated from top() */\n");
+	// Printv(f_module, Char(doxygen_comments), NIL);
+	// Delete(doxygen_comments);
+  //     }
       if (Len(module_class_modifiers) > 0)
 	Printf(f_module, "%s ", module_class_modifiers);
       Printf(f_module, "%s ", module_class_name);
@@ -1255,13 +1257,13 @@ public:
       if ((enum_feature != SimpleEnum) && symname && typemap_lookup_type) {
 	// Wrap (non-anonymous) C/C++ enum within a typesafe, typeunsafe or proper dart enum
 
-	if (doxygen && doxygenTranslator->hasDocumentation(n)) {
-	  String *doxygen_comments = doxygenTranslator->getDocumentation(n, 0);
-	  if (comment_creation_chatter)
-	    Printf(enum_code, "/* This was generated from enumDeclaration() */\n");
-	  Printv(enum_code, Char(doxygen_comments), NIL);
-	  Delete(doxygen_comments);
-	}
+	// if (doxygen && doxygenTranslator->hasDocumentation(n)) {
+	//   String *doxygen_comments = doxygenTranslator->getDocumentation(n, 0);
+	//   if (comment_creation_chatter)
+	//     Printf(enum_code, "/* This was generated from enumDeclaration() */\n");
+	//   Printv(enum_code, Char(doxygen_comments), NIL);
+	//   Delete(doxygen_comments);
+	// }
 
 	String *scope = getCurrentScopeName(nspace);
 	if (!addSymbol(symname, n, scope))
@@ -1284,15 +1286,15 @@ public:
       } else {
 	if (symname && !Getattr(n, "unnamedinstance"))
 	  Printf(constants_code, "  // %s \n", symname);
-	// Translate and write dartdoc comment for the enum itself if flagged
-	if (doxygen && doxygenTranslator->hasDocumentation(n)) {
-	  String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
-	  if (comment_creation_chatter)
-	    Printf(constants_code, "/* This was generated from enumDeclaration() */\n");
-	  Printf(constants_code, Char(doxygen_comments));
-	  Printf(constants_code, "\n");
-	  Delete(doxygen_comments);
-	}
+	// // Translate and write dartdoc comment for the enum itself if flagged
+	// if (doxygen && doxygenTranslator->hasDocumentation(n)) {
+	//   String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
+	//   if (comment_creation_chatter)
+	//     Printf(constants_code, "/* This was generated from enumDeclaration() */\n");
+	//   Printf(constants_code, Char(doxygen_comments));
+	//   Printf(constants_code, "\n");
+	//   Delete(doxygen_comments);
+	// }
       }
 
       if (proxy_flag && !is_wrapping_class()) {
@@ -1452,14 +1454,14 @@ public:
 	  Printf(enum_code, ",\n");
       }
 
-      // Translate and write dartdoc comment if flagged
-      if (doxygen && doxygenTranslator->hasDocumentation(n)) {
-	String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
-	if (comment_creation_chatter)
-	  Printf(enum_code, "/* This was generated from enumvalueDeclaration() */\n");
-	Printv(enum_code, Char(doxygen_comments), NIL);
-	Delete(doxygen_comments);
-      }
+  //     // Translate and write dartdoc comment if flagged
+  //     if (doxygen && doxygenTranslator->hasDocumentation(n)) {
+	// String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
+	// if (comment_creation_chatter)
+	//   Printf(enum_code, "/* This was generated from enumvalueDeclaration() */\n");
+	// Printv(enum_code, Char(doxygen_comments), NIL);
+	// Delete(doxygen_comments);
+  //     }
 
       if ((enum_feature == ProperEnum) && parent_name && !unnamedinstance) {
 	// Wrap (non-anonymous) C/C++ enum with a proper dart enum
@@ -1537,14 +1539,14 @@ public:
     String *constants_code = NewString("");
     Swig_save("constantWrapper", n, "value", NIL);
 
-    // Translate and write dartdoc comment if flagged
-    if (doxygen && doxygenTranslator->hasDocumentation(n)) {
-      String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
-      if (comment_creation_chatter)
-	Printf(constants_code, "/* This was generated from constantWrapper() */\n");
-      Printv(constants_code, Char(doxygen_comments), NIL);
-      Delete(doxygen_comments);
-    }
+  //   // Translate and write dartdoc comment if flagged
+  //   if (doxygen && doxygenTranslator->hasDocumentation(n)) {
+  //     String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
+  //     if (comment_creation_chatter)
+	// Printf(constants_code, "/* This was generated from constantWrapper() */\n");
+  //     Printv(constants_code, Char(doxygen_comments), NIL);
+  //     Delete(doxygen_comments);
+  //   }
     
     bool is_enum_item = (Cmp(nodeType(n), "enumitem") == 0);
 
@@ -1969,14 +1971,14 @@ public:
     if (!has_outerclass) // Import statements
       Printv(proxy_class_def, typemapLookup(n, "dartimports", typemap_lookup_type, WARN_NONE),"\n", NIL);
 
-    // Translate and write dartdoc comment if flagged
-    if (doxygen && doxygenTranslator->hasDocumentation(n)) {
-      String *doxygen_comments = doxygenTranslator->getDocumentation(n, 0);
-      if (comment_creation_chatter)
-	Printf(proxy_class_def, "/* This was generated from emitProxyClassDefAndCPPCasts() */\n");
-      Printv(proxy_class_def, Char(doxygen_comments), NIL);
-      Delete(doxygen_comments);
-    }
+  //   // Translate and write dartdoc comment if flagged
+  //   if (doxygen && doxygenTranslator->hasDocumentation(n)) {
+  //     String *doxygen_comments = doxygenTranslator->getDocumentation(n, 0);
+  //     if (comment_creation_chatter)
+	// Printf(proxy_class_def, "/* This was generated from emitProxyClassDefAndCPPCasts() */\n");
+  //     Printv(proxy_class_def, Char(doxygen_comments), NIL);
+  //     Delete(doxygen_comments);
+  //   }
 
     if (has_outerclass)
       Printv(proxy_class_def, "static ", NIL); // C++ nested classes correspond to static dart classes
@@ -2463,14 +2465,14 @@ public:
       setter_flag = (Cmp(Getattr(n, "sym:name"), Swig_name_set(getNSpace(), Swig_name_member(0, getClassPrefix(), variable_name))) == 0);
     }
 
-    // Translate and write dartdoc comment if flagged
-    if (doxygen && doxygenTranslator->hasDocumentation(n)) {
-      String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
-      if (comment_creation_chatter)
-	Printf(function_code, "/* This was generated from proxyclassfunctionhandler() */\n");
-      Printv(function_code, Char(doxygen_comments), NIL);
-      Delete(doxygen_comments);
-    }
+  //   // Translate and write dartdoc comment if flagged
+  //   if (doxygen && doxygenTranslator->hasDocumentation(n)) {
+  //     String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
+  //     if (comment_creation_chatter)
+	// Printf(function_code, "/* This was generated from proxyclassfunctionhandler() */\n");
+  //     Printv(function_code, Char(doxygen_comments), NIL);
+  //     Delete(doxygen_comments);
+  //   }
 
     /* Start generating the proxy function */
     const String *methodmods = Getattr(n, "feature:dart:methodmodifiers");
@@ -2708,14 +2710,14 @@ public:
       tm = Getattr(n, "tmap:jtype"); // typemaps were attached earlier to the node
       Printf(im_return_type, "%s", tm);
 
-      // Translate and write dartdoc comment if flagged
-      if (doxygen && doxygenTranslator->hasDocumentation(n)) {
-	String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
-	if (comment_creation_chatter)
-	  Printf(function_code, "/* This was generated from constructionhandler() */\n");
-	Printv(function_code, Char(doxygen_comments), NIL);
-	Delete(doxygen_comments);
-      }
+  //     // Translate and write dartdoc comment if flagged
+  //     if (doxygen && doxygenTranslator->hasDocumentation(n)) {
+	// String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
+	// if (comment_creation_chatter)
+	//   Printf(function_code, "/* This was generated from constructionhandler() */\n");
+	// Printv(function_code, Char(doxygen_comments), NIL);
+	// Delete(doxygen_comments);
+  //     }
 
       Printf(function_code, "  %s %s(", methodmods, proxy_class_name);
       Printf(helper_code, "  static private %s SwigConstruct%s(", im_return_type, proxy_class_name);
@@ -2982,14 +2984,14 @@ public:
     String *pre_code = NewString("");
     String *post_code = NewString("");
 
-    // Translate and write dartdoc comment if flagged
-    if (doxygen && doxygenTranslator->hasDocumentation(n)) {
-      String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
-      if (comment_creation_chatter)
-	Printf(function_code, "/* This was generated from moduleClassFunctionHandler() */\n");
-      Printv(function_code, doxygen_comments, NIL);
-      Delete(doxygen_comments);
-    }
+  //   // Translate and write dartdoc comment if flagged
+  //   if (doxygen && doxygenTranslator->hasDocumentation(n)) {
+  //     String *doxygen_comments = doxygenTranslator->getDocumentation(n, "  ");
+  //     if (comment_creation_chatter)
+	// Printf(function_code, "/* This was generated from moduleClassFunctionHandler() */\n");
+  //     Printv(function_code, doxygen_comments, NIL);
+  //     Delete(doxygen_comments);
+  //   }
 
     if (l) {
       if (SwigType_type(Getattr(l, "type")) == T_VOID) {

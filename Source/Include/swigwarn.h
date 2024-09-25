@@ -338,6 +338,24 @@
 
 /* please leave 900-919 free for ObjectiveC */
 
+/* please leave 920-949 free for dart */
+#define WARN_dart_NSPACE_WITHOUT_PACKAGE      920
+#define WARN_dart_TYPEMAP_JNI_UNDEF           921
+#define WARN_dart_TYPEMAP_JTYPE_UNDEF         922
+#define WARN_dart_TYPEMAP_CLASSMOD_UNDEF      923
+#define WARN_dart_TYPEMAP_dartBODY_UNDEF      924
+#define WARN_dart_TYPEMAP_JSTYPE_UNDEF        925
+#define WARN_dart_TYPEMAP_INTERFACECODE_UNDEF 926
+#define WARN_dart_MULTIPLE_INHERITANCE        927
+#define WARN_dart_TYPEMAP_INTERFACEMODIFIERS_UNDEF 928
+#define WARN_dart_COVARIANT_RET               929
+#define WARN_dart_TYPEMAP_dartIN_UNDEF        930
+#define WARN_dart_TYPEMAP_dartOUT_UNDEF       931
+#define WARN_dart_TYPEMAP_dartCONSTRUCT_UNDEF 932
+#define WARN_dart_NO_DIRECTORCONNECT_ATTR     933
+#define WARN_dart_TYPEMAP_dartDIRECTORIN_UNDEF 934
+#define WARN_dart_TYPEMAP_DIRECTORIN_NODESC   935
+
 /* -- User defined warnings (1000 - 999) -- */
 
 #endif
