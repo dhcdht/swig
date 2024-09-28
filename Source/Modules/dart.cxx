@@ -255,7 +255,7 @@ public:
 
   String *makeValidJniName(const String *name) {
     String *valid_jni_name = NewString(name);
-    Replaceall(valid_jni_name, "_", "_1");
+    // Replaceall(valid_jni_name, "_", "_1");
     return valid_jni_name;
   }
 
@@ -914,13 +914,14 @@ public:
     if (!is_void_return)
       Wrapper_add_localv(f, "jresult", c_return_type, "jresult = 0", NIL);
 
-    Printv(f->def, "SWIGEXPORT ", c_return_type, " ", wname, "(JNIEnv *jenv, jclass jcls", NIL);
+    // Printv(f->def, "SWIGEXPORT ", c_return_type, " ", wname, "(JNIEnv *jenv, jclass jcls", NIL);
+    Printv(f->def, "SWIGEXPORT ", c_return_type, " ", wname, "(", NIL);
 
     // Usually these function parameters are unused - The code below ensures
     // that compilers do not issue such a warning if configured to do so.
 
-    Printv(f->code, "    (void)jenv;\n", NIL);
-    Printv(f->code, "    (void)jcls;\n", NIL);
+    // Printv(f->code, "    (void)jenv;\n", NIL);
+    // Printv(f->code, "    (void)jcls;\n", NIL);
 
     // Emit all of the local variables for holding arguments.
     emit_parameter_variables(l, f);
@@ -976,12 +977,17 @@ public:
       }
 
       /* Add parameter to intermediary class method */
-      if (gencomma)
-	Printf(imclass_class_code, ", ");
+      if (gencomma) {
+        Printf(imclass_class_code, ", ");
+      }
       Printf(imclass_class_code, "%s %s", im_param_type, arg);
 
       // Add parameter to C function
-      Printv(f->def, ", ", c_param_type, " ", arg, NIL);
+      if (i != 0) {
+        Printv(f->def, ", ", c_param_type, " ", arg, NIL);
+      } else {
+        Printv(f->def, c_param_type, " ", arg, NIL);
+      }
 
       ++gencomma;
 
@@ -1857,11 +1863,11 @@ public:
 	String *bsmartnamestr = SwigType_namestr(bsmart);
 
 	Printv(upcasts_code,
-	    "SWIGEXPORT jlong JNICALL ", wname, "(JNIEnv *jenv, jclass jcls, jlong jarg1) {\n",
-	    "    jlong baseptr = 0;\n"
+	    "SWIGEXPORT unsigned long ", wname, "(unsigned long jarg1) {\n",
+	    "    unsigned long baseptr = 0;\n"
 	    "    ", smartnamestr, " *argp1;\n"
-	    "    (void)jenv;\n"
-	    "    (void)jcls;\n"
+	    // "    (void)jenv;\n"
+	    // "    (void)jcls;\n"
 	    "    argp1 = *(", smartnamestr, " **)&jarg1;\n"
 	    "    *(", bsmartnamestr, " **)&baseptr = argp1 ? new ", bsmartnamestr, "(*argp1) : 0;\n"
 	    "    return baseptr;\n"
@@ -1875,10 +1881,10 @@ public:
       String *baseclassname = SwigType_namestr(c_baseclassname);
 
       Printv(upcasts_code,
-	  "SWIGEXPORT jlong JNICALL ", wname, "(JNIEnv *jenv, jclass jcls, jlong jarg1) {\n",
-	  "    jlong baseptr = 0;\n"
-	  "    (void)jenv;\n"
-	  "    (void)jcls;\n"
+	  "SWIGEXPORT unsigned long ", wname, "(unsigned long jarg1) {\n",
+	  "    unsigned long baseptr = 0;\n"
+	  // "    (void)jenv;\n"
+	  // "    (void)jcls;\n"
 	  "    *(", baseclassname, " **)&baseptr = *(", classname, " **)&jarg1;\n"
 	  "    return baseptr;\n"
 	  "}\n", "\n", NIL);
@@ -3753,7 +3759,7 @@ public:
       Printf(f_runtime, "  }\n");
       Printf(f_runtime, "}\n");
 
-      Printf(w->def, "SWIGEXPORT void JNICALL Dart_%s%s_%s(JNIEnv *jenv, jclass jcls) {", jnipackage, jni_imclass_name, swig_module_init_jni);
+      Printf(w->def, "SWIGEXPORT void Dart_%s%s_%s() {", jnipackage, jni_imclass_name, swig_module_init_jni);
       Printf(w->code, "static struct {\n");
       Printf(w->code, "  const char *method;\n");
       Printf(w->code, "  const char *signature;\n");
@@ -3805,8 +3811,8 @@ public:
 
     code_wrap = NewWrapper();
     Printf(code_wrap->def,
-	   "SWIGEXPORT void JNICALL Dart_%s%s_%s(JNIEnv *jenv, jclass jcls, jobject jself, jlong objarg, jboolean jswig_mem_own, "
-	   "jboolean jweak_global) {\n", jnipackage, jni_imclass_name, swig_director_connect_jni);
+	   "SWIGEXPORT void Dart_%s%s_%s(unsigned long jself, unsigned long objarg, bool jswig_mem_own, "
+	   "bool jweak_global) {\n", jnipackage, jni_imclass_name, swig_director_connect_jni);
 
     if (smartptr) {
       Printf(code_wrap->code, "  %s *obj = *((%s **)&objarg);\n", smartptr, smartptr);
@@ -3839,7 +3845,7 @@ public:
 
     code_wrap = NewWrapper();
     Printf(code_wrap->def,
-	   "SWIGEXPORT void JNICALL Dart_%s%s_%s(JNIEnv *jenv, jclass jcls, jobject jself, jlong objarg, jboolean jtake_or_release) {\n",
+	   "SWIGEXPORT void Dart_%s%s_%s(unsigned long jself, unsigned long objarg, bool jtake_or_release) {\n",
 	   jnipackage, jni_imclass_name, changeown_jnimethod_name);
 
     if (smartptr) {

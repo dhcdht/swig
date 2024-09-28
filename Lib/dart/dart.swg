@@ -192,25 +192,25 @@ SWIGINTERN jint SWIG_dartIntFromSize_t(size_t size) {
 %typemap(jstype) jobjectArray  "dart.lang.Object[]"
 
 /* Non primitive types */
-%typemap(jni) SWIGTYPE "jlong"
-%typemap(jtype) SWIGTYPE "long"
+%typemap(jni) SWIGTYPE "unsigned long"
+%typemap(jtype) SWIGTYPE "unsigned long"
 %typemap(jstype) SWIGTYPE "$&dartclassname"
 %typemap(jboxtype) SWIGTYPE "$typemap(jstype, $1_type)"
 
-%typemap(jni) SWIGTYPE [] "jlong"
-%typemap(jtype) SWIGTYPE [] "long"
+%typemap(jni) SWIGTYPE [] "unsigned long"
+%typemap(jtype) SWIGTYPE [] "unsigned long"
 %typemap(jstype) SWIGTYPE [] "$dartclassname"
 
-%typemap(jni) SWIGTYPE * "jlong"
-%typemap(jtype) SWIGTYPE * "long"
+%typemap(jni) SWIGTYPE * "unsigned long"
+%typemap(jtype) SWIGTYPE * "unsigned long"
 %typemap(jstype) SWIGTYPE * "$dartclassname"
 
-%typemap(jni) SWIGTYPE & "jlong"
-%typemap(jtype) SWIGTYPE & "long"
+%typemap(jni) SWIGTYPE & "unsigned long"
+%typemap(jtype) SWIGTYPE & "unsigned long"
 %typemap(jstype) SWIGTYPE & "$dartclassname"
 
-%typemap(jni) SWIGTYPE && "jlong"
-%typemap(jtype) SWIGTYPE && "long"
+%typemap(jni) SWIGTYPE && "unsigned long"
+%typemap(jtype) SWIGTYPE && "unsigned long"
 %typemap(jstype) SWIGTYPE && "$dartclassname"
 
 /* pointer to a class member */
