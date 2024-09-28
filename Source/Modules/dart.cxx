@@ -8,18 +8,19 @@
  *
  * dart.cxx
  *
- * dart language module for SWIG.
+ * Dart language module for SWIG.
  * ----------------------------------------------------------------------------- */
 
 #include "swigmod.h"
 #include "cparse.h"
 #include <limits.h>		// for INT_MAX
 #include <ctype.h>
+// #include "dartdoc.h"
 
 /* Hash type used for upcalls from C/C++ */
 typedef DOH UpcallData;
 
-class dart:public Language {
+class DART:public Language {
   static const char *usage;
   const String *empty_string;
   const String *public_string;
@@ -97,10 +98,10 @@ class dart:public Language {
 public:
 
   /* -----------------------------------------------------------------------------
-   * dart()
+   * DART()
    * ----------------------------------------------------------------------------- */
 
-   dart():empty_string(NewString("")),
+   DART():empty_string(NewString("")),
       public_string(NewString("public")),
       protected_string(NewString("protected")),
       swig_types_hash(NULL),
@@ -171,7 +172,7 @@ public:
     directorLanguage();
   }
   
-  ~dart() {
+  ~DART() {
     delete doxygenTranslator;
   }
 
@@ -195,9 +196,9 @@ public:
 
     if (nspace && !package) {
       String *name = Getattr(n, "name") ? Getattr(n, "name") : NewString("<unnamed>");
-      Swig_warning(WARN_dart_NSPACE_WITHOUT_PACKAGE, Getfile(n), Getline(n),
+      Swig_warning(WARN_DART_NSPACE_WITHOUT_PACKAGE, Getfile(n), Getline(n),
 	  "The nspace feature is used on '%s' without -package. "
-	  "The generated code may not compile as dart does not support types declared in a named package accessing types declared in an unnamed package.\n", SwigType_namestr(name));
+	  "The generated code may not compile as Dart does not support types declared in a named package accessing types declared in an unnamed package.\n", SwigType_namestr(name));
     }
   }
 
@@ -316,7 +317,7 @@ public:
     //   doxygenTranslator = new dartDocConverter(doxygen_translator_flags);
 
     // Add a symbol to the parser for conditional compilation
-    Preprocessor_define("SWIGdart 1", 0);
+    Preprocessor_define("SWIGDART 1", 0);
 
     // Add typemap definitions
     SWIG_typemap_lang("dart");
@@ -450,7 +451,7 @@ public:
 
     Swig_banner(f_begin);
 
-    Swig_obligatory_macros(f_runtime, "dart");
+    Swig_obligatory_macros(f_runtime, "DART");
 
     if (Swig_directors_enabled()) {
       Printf(f_runtime, "#define SWIG_DIRECTORS\n");
@@ -486,7 +487,7 @@ public:
       Replaceall(package_path, ".", "/");
     }
     String *jniname = makeValidJniName(imclass_name);
-    Printf(wrapper_name, "dart_%s%s_%%f", jnipackage, jniname);
+    Printf(wrapper_name, "Dart_%s%s_%%f", jnipackage, jniname);
     Delete(jniname);
 
     Swig_name_register("wrapper", Char(wrapper_name));
@@ -564,7 +565,7 @@ public:
       Delete(f_im);
     }
 
-    // Generate the dart module class
+    // Generate the Dart module class
     {
       String *filen = NewStringf("%s%s.dart", SWIG_output_directory(), module_class_name);
       File *f_module = NewFile(filen, "w", SWIG_output_files());
@@ -623,7 +624,7 @@ public:
       Delete(f_module);
     }
 
-    // Generate the dart constants interface
+    // Generate the Dart constants interface
     if (Len(module_class_constants_code) != 0) {
       String *filen = NewStringf("%s%s.dart", SWIG_output_directory(), constants_interface_name);
       File *f_module = NewFile(filen, "w", SWIG_output_files());
@@ -635,7 +636,7 @@ public:
       Delete(filen);
       filen = NULL;
 
-      // Start writing out the dart constants interface file
+      // Start writing out the Dart constants interface file
       emitBanner(f_module);
 
       if (package)
@@ -649,7 +650,7 @@ public:
       // Write out all the global constants
       Printv(f_module, module_class_constants_code, NIL);
 
-      // Finish off the dart interface
+      // Finish off the Dart interface
       Printf(f_module, "}\n");
       Delete(f_module);
     }
@@ -663,7 +664,7 @@ public:
     Printf(f_wrappers, "}\n");
     Printf(f_wrappers, "#endif\n");
 
-    // Output a dart type wrapper class for each SWIG type
+    // Output a Dart type wrapper class for each SWIG type
     for (Iterator swig_type = First(swig_types_hash); swig_type.key; swig_type = Next(swig_type)) {
       emitTypeWrapperClass(swig_type.key, swig_type.item);
     }
@@ -878,7 +879,7 @@ public:
 
     /*
        The rest of this function deals with generating the intermediary class wrapper function (that wraps
-       a c/c++ function) and generating the JNI c code. Each dart wrapper function has a 
+       a c/c++ function) and generating the JNI c code. Each Dart wrapper function has a 
        matching JNI c function call.
      */
 
@@ -900,20 +901,20 @@ public:
     if ((tm = Swig_typemap_lookup("jni", n, "", 0))) {
       Printf(c_return_type, "%s", tm);
     } else {
-      Swig_warning(WARN_dart_TYPEMAP_JNI_UNDEF, input_file, line_number, "No jni typemap defined for %s\n", SwigType_str(t, 0));
+      Swig_warning(WARN_DART_TYPEMAP_JNI_UNDEF, input_file, line_number, "No jni typemap defined for %s\n", SwigType_str(t, 0));
     }
 
     if ((tm = Swig_typemap_lookup("jtype", n, "", 0))) {
       Printf(im_return_type, "%s", tm);
     } else {
-      Swig_warning(WARN_dart_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jtype typemap defined for %s\n", SwigType_str(t, 0));
+      Swig_warning(WARN_DART_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jtype typemap defined for %s\n", SwigType_str(t, 0));
     }
 
     is_void_return = (Cmp(c_return_type, "void") == 0);
     if (!is_void_return)
       Wrapper_add_localv(f, "jresult", c_return_type, "jresult = 0", NIL);
 
-    Printv(f->def, "SWIGEXPORT ", c_return_type, " JNICALL ", wname, "(JNIEnv *jenv, jclass jcls", NIL);
+    Printv(f->def, "SWIGEXPORT ", c_return_type, " ", wname, "(JNIEnv *jenv, jclass jcls", NIL);
 
     // Usually these function parameters are unused - The code below ensures
     // that compilers do not issue such a warning if configured to do so.
@@ -931,9 +932,9 @@ public:
     Setattr(n, "wrap:parms", l);
     Setattr(n, "wrap:name", wname);
 
-    // Wrappers not wanted for some methods where the parameters cannot be overloaded in dart
+    // Wrappers not wanted for some methods where the parameters cannot be overloaded in Dart
     if (Getattr(n, "sym:overloaded")) {
-      // Emit warnings for the few cases that can't be overloaded in dart and give up on generating wrapper
+      // Emit warnings for the few cases that can't be overloaded in Dart and give up on generating wrapper
       Swig_overload_check(n);
       if (Getattr(n, "overload:ignore")) {
 	DelWrapper(f);
@@ -964,14 +965,14 @@ public:
       if ((tm = Getattr(p, "tmap:jni"))) {
 	Printv(c_param_type, tm, NIL);
       } else {
-	Swig_warning(WARN_dart_TYPEMAP_JNI_UNDEF, input_file, line_number, "No jni typemap defined for %s\n", SwigType_str(pt, 0));
+	Swig_warning(WARN_DART_TYPEMAP_JNI_UNDEF, input_file, line_number, "No jni typemap defined for %s\n", SwigType_str(pt, 0));
       }
 
       /* Get the intermediary class parameter types of the parameter */
       if ((tm = Getattr(p, "tmap:jtype"))) {
 	Printv(im_param_type, tm, NIL);
       } else {
-	Swig_warning(WARN_dart_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jtype typemap defined for %s\n", SwigType_str(pt, 0));
+	Swig_warning(WARN_DART_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jtype typemap defined for %s\n", SwigType_str(pt, 0));
       }
 
       /* Add parameter to intermediary class method */
@@ -1056,7 +1057,7 @@ public:
       }
     }
 
-    // Get any dart exception classes in the throws typemap
+    // Get any Dart exception classes in the throws typemap
     ParmList *throw_parm_list = NULL;
     if ((throw_parm_list = Getattr(n, "catchlist"))) {
       Swig_typemap_attach_parms("throws", throw_parm_list, f);
@@ -1155,7 +1156,7 @@ public:
      * Not for enums and constants.
      */
     if (proxy_flag && wrapping_member_flag && !enum_constant_flag) {
-      // Capitalize the first letter in the variable to create a dartBean type getter/setter function name
+      // Capitalize the first letter in the variable to create a DartBean type getter/setter function name
       bool getter_flag = Cmp(symname, Swig_name_set(getNSpace(), Swig_name_member(0, getClassPrefix(), variable_name))) != 0;
 
       String *getter_setter_name = NewString("");
@@ -1234,9 +1235,9 @@ public:
    *
    * C/C++ enums can be mapped in one of 4 ways, depending on the dart:enum feature specified:
    * 1) Simple enums - simple constant within the proxy class or module class
-   * 2) Typeunsafe enums - simple constant in a dart class (class named after the c++ enum name)
+   * 2) Typeunsafe enums - simple constant in a Dart class (class named after the c++ enum name)
    * 3) Typesafe enum - typesafe enum pattern (class named after the c++ enum name)
-   * 4) Proper enums - proper dart enum
+   * 4) Proper enums - proper Dart enum
    * Anonymous enums always default to 1)
    * ---------------------------------------------------------------------- */
 
@@ -1269,12 +1270,12 @@ public:
 	if (!addSymbol(symname, n, scope))
 	  return SWIG_ERROR;
 
-	// Pure dart baseclass and interfaces
+	// Pure Dart baseclass and interfaces
 	const String *pure_baseclass = typemapLookup(n, "dartbase", typemap_lookup_type, WARN_NONE);
 	const String *pure_interfaces = typemapLookup(n, "dartinterfaces", typemap_lookup_type, WARN_NONE);
 
 	// Emit the enum
-	Printv(enum_code, typemapLookup(n, "dartclassmodifiers", typemap_lookup_type, WARN_dart_TYPEMAP_CLASSMOD_UNDEF),	// Class modifiers (enum modifiers really)
+	Printv(enum_code, typemapLookup(n, "dartclassmodifiers", typemap_lookup_type, WARN_DART_TYPEMAP_CLASSMOD_UNDEF),	// Class modifiers (enum modifiers really)
 	       " ", symname, *Char(pure_baseclass) ?	// Bases
 	       " extends " : "", pure_baseclass, *Char(pure_interfaces) ?	// Interfaces
 	       " implements " : "", pure_interfaces, " {\n", NIL);
@@ -1312,11 +1313,11 @@ public:
       }
 
       if ((enum_feature != SimpleEnum) && symname && typemap_lookup_type) {
-	// Wrap (non-anonymous) C/C++ enum within a typesafe, typeunsafe or proper dart enum
+	// Wrap (non-anonymous) C/C++ enum within a typesafe, typeunsafe or proper Dart enum
 	// Finish the enum declaration
 	// Typemaps are used to generate the enum definition in a similar manner to proxy classes.
-	Printv(enum_code, (enum_feature == ProperEnum) ? ";\n" : "", typemapLookup(n, "dartbody", typemap_lookup_type, WARN_dart_TYPEMAP_dartBODY_UNDEF),	// main body of class
-	       typemapLookup(n, "dartcode", typemap_lookup_type, WARN_NONE),	// extra dart code
+	Printv(enum_code, (enum_feature == ProperEnum) ? ";\n" : "", typemapLookup(n, "dartbody", typemap_lookup_type, WARN_DART_TYPEMAP_DARTBODY_UNDEF),	// main body of class
+	       typemapLookup(n, "dartcode", typemap_lookup_type, WARN_NONE),	// extra Dart code
 	       "}", NIL);
 
 	Replaceall(enum_code, "$dartclassname", symname);
@@ -1464,7 +1465,7 @@ public:
   //     }
 
       if ((enum_feature == ProperEnum) && parent_name && !unnamedinstance) {
-	// Wrap (non-anonymous) C/C++ enum with a proper dart enum
+	// Wrap (non-anonymous) C/C++ enum with a proper Dart enum
 	// Emit the enum item.
 	Printf(enum_code, "  %s", symname);
 	if (Getattr(n, "enumvalue")) {
@@ -1476,7 +1477,7 @@ public:
 	// Wrap C/C++ enums with constant integers or use the typesafe enum pattern
 	SwigType *typemap_lookup_type = parent_name ? parent_name : NewString("enum ");
 	Setattr(n, "type", typemap_lookup_type);
-	const String *tm = typemapLookup(n, "jstype", typemap_lookup_type, WARN_dart_TYPEMAP_JSTYPE_UNDEF);
+	const String *tm = typemapLookup(n, "jstype", typemap_lookup_type, WARN_DART_TYPEMAP_JSTYPE_UNDEF);
 
 	String *return_type = Copy(tm);
 	substituteClassname(typemap_lookup_type, return_type);
@@ -1522,9 +1523,9 @@ public:
    * constantWrapper()
    * Used for wrapping constants - #define or %constant.
    * Also for inline initialised const static primitive type member variables (short, int, double, enums etc).
-   * dart static final variables are generated for these.
-   * If the %dartconst(1) feature is used then the C constant value is used to initialise the dart final variable.
-   * If not, a JNI method is generated to get the C constant value for initialisation of the dart final variable.
+   * Dart static final variables are generated for these.
+   * If the %dartconst(1) feature is used then the C constant value is used to initialise the Dart final variable.
+   * If not, a JNI method is generated to get the C constant value for initialisation of the Dart final variable.
    * However, if the %dartconstvalue feature is used, it overrides all other ways to generate the initialisation.
    * Also note that this method might be called for wrapping enum items (when the enum is using %dartconst(0)).
    * ------------------------------------------------------------------------ */
@@ -1580,14 +1581,14 @@ public:
     /* Attach the non-standard typemaps to the parameter list. */
     Swig_typemap_attach_parms("jstype", l, NULL);
 
-    /* Get dart return types */
+    /* Get Dart return types */
     bool classname_substituted_flag = false;
 
     if ((tm = Swig_typemap_lookup("jstype", n, "", 0))) {
       classname_substituted_flag = substituteClassname(t, tm);
       Printf(return_type, "%s", tm);
     } else {
-      Swig_warning(WARN_dart_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(t, 0));
+      Swig_warning(WARN_DART_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(t, 0));
     }
 
     // Add the stripped quotes back in
@@ -1611,7 +1612,7 @@ public:
     if (value) {
       Printf(constants_code, "%s;\n", value);
     } else if (!const_feature_flag) {
-      // Default enum and constant handling will work with any type of C constant and initialises the dart variable from C through a JNI call.
+      // Default enum and constant handling will work with any type of C constant and initialises the Dart variable from C through a JNI call.
 
       if (classname_substituted_flag) {
 	if (SwigType_isenum(t)) {
@@ -1631,7 +1632,7 @@ public:
       variableWrapper(n);
       enum_constant_flag = false;
     } else {
-      // Alternative constant handling will use the C syntax to make a true dart constant and hope that it compiles as dart code
+      // Alternative constant handling will use the C syntax to make a true Dart constant and hope that it compiles as Dart code
       if (Getattr(n, "wrappedasconstant")) {
 	if (SwigType_type(valuetype) == T_CHAR)
           Printf(constants_code, "\'%(escape)s\';\n", Getattr(n, "staticmembervariableHandler:value"));
@@ -1725,7 +1726,7 @@ public:
 
 	  String *wrapper_name = NewString("");
 	  String *imclass_class_jniname = makeValidJniName(imclass_name);
-	  Printf(wrapper_name, "dart_%s%s_%%f", jnipackage, imclass_class_jniname);
+	  Printf(wrapper_name, "Dart_%s%s_%%f", jnipackage, imclass_class_jniname);
 	  Delete(imclass_class_jniname);
 
 	  Swig_name_unregister("wrapper");
@@ -1817,7 +1818,7 @@ public:
       Append(interface_list, interface_name);
 
       Node *attributes = NewHash();
-      String *interface_code = Copy(typemapLookup(base, "dartinterfacecode", Getattr(base, "classtypeobj"), WARN_dart_TYPEMAP_INTERFACECODE_UNDEF, attributes));
+      String *interface_code = Copy(typemapLookup(base, "dartinterfacecode", Getattr(base, "classtypeobj"), WARN_DART_TYPEMAP_INTERFACECODE_UNDEF, attributes));
       String *cptr_method_name = 0;
       if (interface_code) {
         Replaceall(interface_code, "$interfacename", interface_name);
@@ -1906,7 +1907,7 @@ public:
     SwigType *smart = Getattr(n, "smart");
     SwigType *bsmart = 0;
 
-    // Inheritance from pure dart classes
+    // Inheritance from pure Dart classes
     Node *attributes = NewHash();
     const String *pure_baseclass = typemapLookup(n, "dartbase", typemap_lookup_type, WARN_NONE, attributes);
     bool purebase_replace = GetFlag(attributes, "tmap:dartbase:replace") ? true : false;
@@ -1931,8 +1932,8 @@ public:
 	    } else {
 	      /* Warn about multiple inheritance for additional base class(es) */
 	      String *proxyclassname = Getattr(n, "classtypeobj");
-	      Swig_warning(WARN_dart_MULTIPLE_INHERITANCE, Getfile(n), Getline(n),
-		  "Warning for %s, base %s ignored. Multiple inheritance is not supported in dart.\n", SwigType_namestr(proxyclassname), SwigType_namestr(baseclassname));
+	      Swig_warning(WARN_DART_MULTIPLE_INHERITANCE, Getfile(n), Getline(n),
+		  "Warning for %s, base %s ignored. Multiple inheritance is not supported in Dart.\n", SwigType_namestr(proxyclassname), SwigType_namestr(baseclassname));
 	    }
 	  }
 	  base = Next(base);
@@ -1956,12 +1957,12 @@ public:
       if (purebase_notderived)
         Swig_error(Getfile(n), Getline(n), "The dartbase typemap for proxy %s must contain just one of the 'replace' or 'notderived' attributes.\n", typemap_lookup_type);
     } else if (Len(pure_baseclass) > 0 && Len(baseclass) > 0) {
-      Swig_warning(WARN_dart_MULTIPLE_INHERITANCE, Getfile(n), Getline(n),
-		   "Warning for %s, base %s ignored. Multiple inheritance is not supported in dart. "
+      Swig_warning(WARN_DART_MULTIPLE_INHERITANCE, Getfile(n), Getline(n),
+		   "Warning for %s, base %s ignored. Multiple inheritance is not supported in Dart. "
 		   "Perhaps you need one of the 'replace' or 'notderived' attributes in the dartbase typemap?\n", typemap_lookup_type, pure_baseclass);
     }
 
-    // Pure dart interfaces
+    // Pure Dart interfaces
     const String *pure_interfaces = typemapLookup(n, "dartinterfaces", typemap_lookup_type, WARN_NONE);
 
     if (*Char(interface_list) && *Char(pure_interfaces))
@@ -1982,11 +1983,11 @@ public:
 
     if (has_outerclass)
       Printv(proxy_class_def, "static ", NIL); // C++ nested classes correspond to static dart classes
-    Printv(proxy_class_def, typemapLookup(n, "dartclassmodifiers", typemap_lookup_type, WARN_dart_TYPEMAP_CLASSMOD_UNDEF),	// Class modifiers
+    Printv(proxy_class_def, typemapLookup(n, "dartclassmodifiers", typemap_lookup_type, WARN_DART_TYPEMAP_CLASSMOD_UNDEF),	// Class modifiers
 	   " $dartclassname",	// Class name and bases
-	   (*Char(wanted_base)) ? " extends " : "", wanted_base, *Char(interface_list) ?	// Pure dart interfaces
-	   " implements " : "", interface_list, " {", derived ? typemapLookup(n, "dartbody_derived", typemap_lookup_type, WARN_dart_TYPEMAP_dartBODY_UNDEF) :	// main body of class
-	   typemapLookup(n, "dartbody", typemap_lookup_type, WARN_dart_TYPEMAP_dartBODY_UNDEF),	// main body of class
+	   (*Char(wanted_base)) ? " extends " : "", wanted_base, *Char(interface_list) ?	// Pure Dart interfaces
+	   " implements " : "", interface_list, " {", derived ? typemapLookup(n, "dartbody_derived", typemap_lookup_type, WARN_DART_TYPEMAP_DARTBODY_UNDEF) :	// main body of class
+	   typemapLookup(n, "dartbody", typemap_lookup_type, WARN_DART_TYPEMAP_DARTBODY_UNDEF),	// main body of class
 	   NIL);
 
     // C++ destructor is wrapped by the delete method
@@ -2069,7 +2070,7 @@ public:
     Delete(destruct);
 
     // Emit extra user code
-    Printv(proxy_class_def, typemapLookup(n, "dartcode", typemap_lookup_type, WARN_NONE),	// extra dart code
+    Printv(proxy_class_def, typemapLookup(n, "dartcode", typemap_lookup_type, WARN_NONE),	// extra Dart code
 	   "\n", NIL);
 
     if (derived) {
@@ -2094,7 +2095,7 @@ public:
     }
 
     Printv(f_interface, typemapLookup(n, "dartimports", Getattr(n, "classtypeobj"), WARN_NONE), "\n", NIL);
-    Printv(f_interface, typemapLookup(n, "dartinterfacemodifiers", Getattr(n, "classtypeobj"), WARN_dart_TYPEMAP_INTERFACEMODIFIERS_UNDEF), NIL);
+    Printv(f_interface, typemapLookup(n, "dartinterfacemodifiers", Getattr(n, "classtypeobj"), WARN_DART_TYPEMAP_INTERFACEMODIFIERS_UNDEF), NIL);
     Printf(f_interface, " %s", interface_name);
     if (List *baselist = Getattr(n, "bases")) {
       String *bases = 0;
@@ -2117,7 +2118,7 @@ public:
     Printf(f_interface, " {\n");
 
     Node *attributes = NewHash();
-    String *interface_code = Copy(typemapLookup(n, "dartinterfacecode", Getattr(n, "classtypeobj"), WARN_dart_TYPEMAP_INTERFACECODE_UNDEF, attributes));
+    String *interface_code = Copy(typemapLookup(n, "dartinterfacecode", Getattr(n, "classtypeobj"), WARN_DART_TYPEMAP_INTERFACECODE_UNDEF, attributes));
     if (interface_code) {
       String *interface_declaration = Copy(Getattr(attributes, "tmap:dartinterfacecode:declaration"));
       if (interface_declaration) {
@@ -2399,11 +2400,11 @@ public:
   /* -----------------------------------------------------------------------------
    * proxyClassFunctionHandler()
    *
-   * Function called for creating a dart wrapper function around a c++ function in the 
+   * Function called for creating a Dart wrapper function around a c++ function in the 
    * proxy class. Used for both static and non-static C++ class functions.
-   * C++ class static functions map to dart static functions.
+   * C++ class static functions map to Dart static functions.
    * Two extra attributes in the Node must be available. These are "proxyfuncname" - 
-   * the name of the dart class proxy function, which in turn will call "imfuncname" - 
+   * the name of the Dart class proxy function, which in turn will call "imfuncname" - 
    * the intermediary (JNI) function name in the intermediary class.
    * ----------------------------------------------------------------------------- */
 
@@ -2427,7 +2428,7 @@ public:
     if (!proxy_flag)
       return;
 
-    // Wrappers not wanted for some methods where the parameters cannot be overloaded in dart
+    // Wrappers not wanted for some methods where the parameters cannot be overloaded in Dart
     if (Getattr(n, "overload:ignore"))
       return;
 
@@ -2454,14 +2455,14 @@ public:
       substituteClassname(covariant ? covariant : t, tm);
       Printf(return_type, "%s", tm);
       if (covariant)
-	Swig_warning(WARN_dart_COVARIANT_RET, input_file, line_number,
-		     "Covariant return types not supported in dart. Proxy method will return %s.\n", SwigType_str(covariant, 0));
+	Swig_warning(WARN_DART_COVARIANT_RET, input_file, line_number,
+		     "Covariant return types not supported in Dart. Proxy method will return %s.\n", SwigType_str(covariant, 0));
     } else {
-      Swig_warning(WARN_dart_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(t, 0));
+      Swig_warning(WARN_DART_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(t, 0));
     }
 
     if (wrapping_member_flag && !enum_constant_flag) {
-      // For wrapping member variables (dartbean setter)
+      // For wrapping member variables (Dartbean setter)
       setter_flag = (Cmp(Getattr(n, "sym:name"), Swig_name_set(getNSpace(), Swig_name_member(0, getClassPrefix(), variable_name))) == 0);
     }
 
@@ -2531,12 +2532,12 @@ public:
 	SwigType *pt = Getattr(p, "type");
 	String *param_type = NewString("");
 
-	/* Get the dart parameter type */
+	/* Get the Dart parameter type */
 	if ((tm = Getattr(p, "tmap:jstype"))) {
 	  substituteClassname(pt, tm);
 	  Printf(param_type, "%s", tm);
 	} else {
-	  Swig_warning(WARN_dart_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(pt, 0));
+	  Swig_warning(WARN_DART_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(pt, 0));
 	}
 
 	if (gencomma)
@@ -2544,7 +2545,7 @@ public:
 
 	String *arg = makeParameterName(n, p, i, setter_flag);
 
-	// Use typemaps to transform type used in dart proxy wrapper (in proxy class) to type used in JNI function (in intermediary class)
+	// Use typemaps to transform type used in Dart proxy wrapper (in proxy class) to type used in JNI function (in intermediary class)
 	if ((tm = Getattr(p, "tmap:dartin"))) {
 	  addThrows(n, "tmap:dartin", p);
 	  substituteClassname(pt, tm);
@@ -2567,7 +2568,7 @@ public:
           }
 	  Printv(imcall, tm, NIL);
 	} else {
-	  Swig_warning(WARN_dart_TYPEMAP_dartIN_UNDEF, input_file, line_number, "No dartin typemap defined for %s\n", SwigType_str(pt, 0));
+	  Swig_warning(WARN_DART_TYPEMAP_DARTIN_UNDEF, input_file, line_number, "No dartin typemap defined for %s\n", SwigType_str(pt, 0));
 	}
 
 	/* Add parameter to proxy function */
@@ -2602,7 +2603,7 @@ public:
     Printf(imcall, ")");
     Printf(function_code, ")");
 
-    // Transform return type used in JNI function (in intermediary class) to type used in dart wrapper function (in proxy class)
+    // Transform return type used in JNI function (in intermediary class) to type used in Dart wrapper function (in proxy class)
     if ((tm = Swig_typemap_lookup("dartout", n, "", 0))) {
       addThrows(n, "tmap:dartout", n);
       bool is_pre_code = Len(pre_code) > 0;
@@ -2656,7 +2657,7 @@ public:
       Replaceall(tm, "$imfuncname", intermediary_function_name);
       Replaceall(tm, "$jnicall", imcall);
     } else {
-      Swig_warning(WARN_dart_TYPEMAP_dartOUT_UNDEF, input_file, line_number, "No dartout typemap defined for %s\n", SwigType_str(t, 0));
+      Swig_warning(WARN_DART_TYPEMAP_DARTOUT_UNDEF, input_file, line_number, "No dartout typemap defined for %s\n", SwigType_str(t, 0));
     }
 
     if (is_interface) {
@@ -2695,7 +2696,7 @@ public:
 
     Language::constructorHandler(n);
 
-    // Wrappers not wanted for some methods where the parameters cannot be overloaded in dart
+    // Wrappers not wanted for some methods where the parameters cannot be overloaded in Dart
     if (Getattr(n, "overload:ignore"))
       return SWIG_OK;
 
@@ -2752,12 +2753,12 @@ public:
 	SwigType *pt = Getattr(p, "type");
 	String *param_type = NewString("");
 
-	/* Get the dart parameter type */
+	/* Get the Dart parameter type */
 	if ((tm = Getattr(p, "tmap:jstype"))) {
 	  substituteClassname(pt, tm);
 	  Printf(param_type, "%s", tm);
 	} else {
-	  Swig_warning(WARN_dart_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(pt, 0));
+	  Swig_warning(WARN_DART_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(pt, 0));
 	}
 
 	if (gencomma)
@@ -2765,7 +2766,7 @@ public:
 
 	String *arg = makeParameterName(n, p, i, false);
 
-	// Use typemaps to transform type used in dart wrapper function (in proxy class) to type used in JNI function (in intermediary class)
+	// Use typemaps to transform type used in Dart wrapper function (in proxy class) to type used in JNI function (in intermediary class)
 	if ((tm = Getattr(p, "tmap:dartin"))) {
 	  addThrows(n, "tmap:dartin", p);
 	  substituteClassname(pt, tm);
@@ -2788,7 +2789,7 @@ public:
           }
 	  Printv(imcall, tm, NIL);
 	} else {
-	  Swig_warning(WARN_dart_TYPEMAP_dartIN_UNDEF, input_file, line_number, "No dartin typemap defined for %s\n", SwigType_str(pt, 0));
+	  Swig_warning(WARN_DART_TYPEMAP_DARTIN_UNDEF, input_file, line_number, "No dartin typemap defined for %s\n", SwigType_str(pt, 0));
 	}
 
 	/* Add parameter to proxy function */
@@ -2829,7 +2830,7 @@ public:
       Hash *attributes = NewHash();
       String *typemap_lookup_type = Getattr(getCurrentClass(), "classtypeobj");
       String *construct_tm = Copy(typemapLookup(n, "dartconstruct", typemap_lookup_type,
-						WARN_dart_TYPEMAP_dartCONSTRUCT_UNDEF, attributes));
+						WARN_DART_TYPEMAP_DARTCONSTRUCT_UNDEF, attributes));
       if (construct_tm) {
 	if (!feature_director) {
 	  Replaceall(construct_tm, "$directorconnect", "");
@@ -2839,7 +2840,7 @@ public:
 	  if (connect_attr) {
 	    Replaceall(construct_tm, "$directorconnect", connect_attr);
 	  } else {
-	    Swig_warning(WARN_dart_NO_DIRECTORCONNECT_ATTR, input_file, line_number, "\"directorconnect\" attribute missing in %s \"dartconstruct\" typemap.\n",
+	    Swig_warning(WARN_DART_NO_DIRECTORCONNECT_ATTR, input_file, line_number, "\"directorconnect\" attribute missing in %s \"dartconstruct\" typemap.\n",
 			 Getattr(n, "name"));
 	    Replaceall(construct_tm, "$directorconnect", "");
 	  }
@@ -2951,8 +2952,8 @@ public:
 
   String *getOverloadedName(Node *n) {
 
-    /* Although JNI functions are designed to handle overloaded dart functions,
-     * a dart long is used for all classes in the SWIG intermediary class.
+    /* Although JNI functions are designed to handle overloaded Dart functions,
+     * a Dart long is used for all classes in the SWIG intermediary class.
      * The intermediary class methods are thus mangled when overloaded to give
      * a unique name. */
     String *overloaded_name = Copy(Getattr(n, "sym:name"));
@@ -3008,12 +3009,12 @@ public:
       substituteClassname(t, tm);
       Printf(return_type, "%s", tm);
     } else {
-      Swig_warning(WARN_dart_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(t, 0));
+      Swig_warning(WARN_DART_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(t, 0));
     }
 
     /* Change function name for global variables */
     if (proxy_flag && global_variable_flag) {
-      // Capitalize the first letter in the variable to create a dartBean type getter/setter function name
+      // Capitalize the first letter in the variable to create a DartBean type getter/setter function name
       func_name = NewString("");
       setter_flag = (Cmp(Getattr(n, "sym:name"), Swig_name_set(getNSpace(), variable_name)) == 0);
       if (setter_flag)
@@ -3049,12 +3050,12 @@ public:
       SwigType *pt = Getattr(p, "type");
       String *param_type = NewString("");
 
-      /* Get the dart parameter type */
+      /* Get the Dart parameter type */
       if ((tm = Getattr(p, "tmap:jstype"))) {
 	substituteClassname(pt, tm);
 	Printf(param_type, "%s", tm);
       } else {
-	Swig_warning(WARN_dart_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(pt, 0));
+	Swig_warning(WARN_DART_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(pt, 0));
       }
 
       if (gencomma)
@@ -3062,7 +3063,7 @@ public:
 
       String *arg = makeParameterName(n, p, i, global_or_member_variable);
 
-      // Use typemaps to transform type used in dart wrapper function (in proxy class) to type used in JNI function (in intermediary class)
+      // Use typemaps to transform type used in Dart wrapper function (in proxy class) to type used in JNI function (in intermediary class)
       if ((tm = Getattr(p, "tmap:dartin"))) {
 	addThrows(n, "tmap:dartin", p);
 	substituteClassname(pt, tm);
@@ -3085,7 +3086,7 @@ public:
 	}
 	Printv(imcall, tm, NIL);
       } else {
-	Swig_warning(WARN_dart_TYPEMAP_dartIN_UNDEF, input_file, line_number, "No dartin typemap defined for %s\n", SwigType_str(pt, 0));
+	Swig_warning(WARN_DART_TYPEMAP_DARTIN_UNDEF, input_file, line_number, "No dartin typemap defined for %s\n", SwigType_str(pt, 0));
       }
 
       /* Add parameter to module class function */
@@ -3114,7 +3115,7 @@ public:
     Printf(imcall, ")");
     Printf(function_code, ")");
 
-    // Transform return type used in JNI function (in intermediary class) to type used in dart wrapper function (in module class)
+    // Transform return type used in JNI function (in intermediary class) to type used in Dart wrapper function (in module class)
     if ((tm = Swig_typemap_lookup("dartout", n, "", 0))) {
       addThrows(n, "tmap:dartout", n);
       bool is_pre_code = Len(pre_code) > 0;
@@ -3142,7 +3143,7 @@ public:
       Replaceall(tm, "$imfuncname", overloaded_name);
       Replaceall(tm, "$jnicall", imcall);
     } else {
-      Swig_warning(WARN_dart_TYPEMAP_dartOUT_UNDEF, input_file, line_number, "No dartout typemap defined for %s\n", SwigType_str(t, 0));
+      Swig_warning(WARN_DART_TYPEMAP_DARTOUT_UNDEF, input_file, line_number, "No dartout typemap defined for %s\n", SwigType_str(t, 0));
     }
 
     generateThrowsClause(n, function_code);
@@ -3192,11 +3193,11 @@ public:
 
   /* -----------------------------------------------------------------------
    * enumValue()
-   * This method will return a string with an enum value to use in dart generated
+   * This method will return a string with an enum value to use in Dart generated
    * code. If the %dartconst feature is not used, the string will contain the intermediary
    * class call to obtain the enum value. The intermediary class and JNI methods to obtain
    * the enum value will be generated. Otherwise the C/C++ enum value will be used if there
-   * is one and hopefully it will compile as dart code - e.g. 20 as in: enum E{e=20};
+   * is one and hopefully it will compile as Dart code - e.g. 20 as in: enum E{e=20};
    * The %dartconstvalue feature overrides all other ways to generate the constant value.
    * The caller must delete memory allocated for the returned string.
    * ------------------------------------------------------------------------ */
@@ -3212,7 +3213,7 @@ public:
       int const_feature_flag = GetFlag(n, "feature:dart:const");
 
       if (const_feature_flag) {
-	// Use the C syntax to make a true dart constant and hope that it compiles as dart code
+	// Use the C syntax to make a true Dart constant and hope that it compiles as Dart code
 	value = Getattr(n, "enumvalue") ? Copy(Getattr(n, "enumvalue")) : Copy(Getattr(n, "enumvalueex"));
       } else {
 	String *newsymname = 0;
@@ -3294,7 +3295,7 @@ public:
    *
    * Substitute the special variable $dartclassname with the proxy class name for classes/structs/unions 
    * that SWIG knows about. Also substitutes enums with enum name.
-   * Otherwise use the $descriptor name for the dart class name. Note that the $&dartclassname substitution
+   * Otherwise use the $descriptor name for the Dart class name. Note that the $&dartclassname substitution
    * is the same as a $&descriptor substitution, ie one pointer added to descriptor name.
    * Note that the path separator is a '.' unless jnidescriptor is set.
    * Inputs:
@@ -3470,17 +3471,17 @@ public:
     if (package)
       Printf(f_swigtype, "package %s;\n", package);
 
-    // Pure dart baseclass and interfaces
+    // Pure Dart baseclass and interfaces
     const String *pure_baseclass = typemapLookup(n, "dartbase", type, WARN_NONE);
     const String *pure_interfaces = typemapLookup(n, "dartinterfaces", type, WARN_NONE);
 
     // Emit the class
     Printv(swigtype, typemapLookup(n, "dartimports", type, WARN_NONE),	// Import statements
-	   "\n", typemapLookup(n, "dartclassmodifiers", type, WARN_dart_TYPEMAP_CLASSMOD_UNDEF),	// Class modifiers
+	   "\n", typemapLookup(n, "dartclassmodifiers", type, WARN_DART_TYPEMAP_CLASSMOD_UNDEF),	// Class modifiers
 	   " $dartclassname",	// Class name and bases
 	   *Char(pure_baseclass) ? " extends " : "", pure_baseclass, *Char(pure_interfaces) ?	// Interfaces
-	   " implements " : "", pure_interfaces, " {", typemapLookup(n, "dartbody", type, WARN_dart_TYPEMAP_dartBODY_UNDEF),	// main body of class
-	   typemapLookup(n, "dartcode", type, WARN_NONE),	// extra dart code
+	   " implements " : "", pure_interfaces, " {", typemapLookup(n, "dartbody", type, WARN_DART_TYPEMAP_DARTBODY_UNDEF),	// main body of class
+	   typemapLookup(n, "dartcode", type, WARN_NONE),	// extra Dart code
 	   "}\n", "\n", NIL);
 
     Replaceall(swigtype, "$dartclassname", classname);
@@ -3529,7 +3530,7 @@ public:
    * addThrows()
    *
    * Adds exception classes to a throws list. The throws list is the list of classes
-   * that will form the dart throws clause. Mainly for checked exceptions.
+   * that will form the Dart throws clause. Mainly for checked exceptions.
    * ----------------------------------------------------------------------------- */
 
   void addThrows(Node *n, const String *attribute, Node *parameter) {
@@ -3557,7 +3558,7 @@ public:
 	    SwigType *pt = Getattr(parameter, "type");
 	    substituteClassname(pt, exception_class);
 
-	    // Don't duplicate the dart exception class in the throws clause
+	    // Don't duplicate the Dart exception class in the throws clause
 	    bool found_flag = false;
 	    for (Iterator item = First(throws_list); item.item; item = Next(item)) {
 	      if (Strcmp(item.item, exception_class) == 0)
@@ -3597,7 +3598,7 @@ public:
    * Get the proxy class name for use in an additional generated parameter. The
    * additional parameter is added to a native method call purely to prevent 
    * premature garbage collection of proxy classes which pass their C++ class pointer
-   * in a dart long to the JNI layer.
+   * in a Dart long to the JNI layer.
    * ----------------------------------------------------------------------------- */
 
   String *prematureGarbageCollectionPreventionParameter(SwigType *t, Parm *p) {
@@ -3660,7 +3661,7 @@ public:
   /* -----------------------------------------------------------------------------
    * outputDirectory()
    *
-   * Return the directory to use for generating dart classes/enums and create the
+   * Return the directory to use for generating Dart classes/enums and create the
    * subdirectory (does not create if language specific outdir does not exist).
    * ----------------------------------------------------------------------------- */
 
@@ -3752,7 +3753,7 @@ public:
       Printf(f_runtime, "  }\n");
       Printf(f_runtime, "}\n");
 
-      Printf(w->def, "SWIGEXPORT void JNICALL dart_%s%s_%s(JNIEnv *jenv, jclass jcls) {", jnipackage, jni_imclass_name, swig_module_init_jni);
+      Printf(w->def, "SWIGEXPORT void JNICALL Dart_%s%s_%s(JNIEnv *jenv, jclass jcls) {", jnipackage, jni_imclass_name, swig_module_init_jni);
       Printf(w->code, "static struct {\n");
       Printf(w->code, "  const char *method;\n");
       Printf(w->code, "  const char *signature;\n");
@@ -3804,7 +3805,7 @@ public:
 
     code_wrap = NewWrapper();
     Printf(code_wrap->def,
-	   "SWIGEXPORT void JNICALL dart_%s%s_%s(JNIEnv *jenv, jclass jcls, jobject jself, jlong objarg, jboolean jswig_mem_own, "
+	   "SWIGEXPORT void JNICALL Dart_%s%s_%s(JNIEnv *jenv, jclass jcls, jobject jself, jlong objarg, jboolean jswig_mem_own, "
 	   "jboolean jweak_global) {\n", jnipackage, jni_imclass_name, swig_director_connect_jni);
 
     if (smartptr) {
@@ -3838,7 +3839,7 @@ public:
 
     code_wrap = NewWrapper();
     Printf(code_wrap->def,
-	   "SWIGEXPORT void JNICALL dart_%s%s_%s(JNIEnv *jenv, jclass jcls, jobject jself, jlong objarg, jboolean jtake_or_release) {\n",
+	   "SWIGEXPORT void JNICALL Dart_%s%s_%s(JNIEnv *jenv, jclass jcls, jobject jself, jlong objarg, jboolean jtake_or_release) {\n",
 	   jnipackage, jni_imclass_name, changeown_jnimethod_name);
 
     if (smartptr) {
@@ -3939,7 +3940,7 @@ public:
    * Canonicalize the JNI field descriptor
    *
    * Replace the $packagepath and $dartclassname family of special
-   * variables with the desired package and dart proxy name as 
+   * variables with the desired package and Dart proxy name as 
    * required in the JNI field descriptors.
    * 
    * !!SFM!! If $packagepath occurs in the field descriptor, but
@@ -3962,7 +3963,7 @@ public:
    * classDirectorMethod()
    *
    * Emit a virtual director method to pass a method call on to the 
-   * underlying dart object.
+   * underlying Dart object.
    *
    * --------------------------------------------------------------- */
 
@@ -4033,7 +4034,7 @@ public:
 	    Wrapper_add_localv(w, "c_result", SwigType_lstr(returntype, "c_result"), "= 0", NIL);
 	  } else {
 	    /* If returning a reference, initialize the pointer to a sane
-	       default - if a dart exception occurs, then the pointer returns
+	       default - if a Dart exception occurs, then the pointer returns
 	       something other than a NULL-initialized reference. */
 	    SwigType *noref_type = SwigType_del_reference(Copy(returntype));
 	    String *noref_ltype = SwigType_lstr(noref_type, 0);
@@ -4070,7 +4071,7 @@ public:
       if (tm) {
 	Printf(callback_def, "  public static %s %s(%s jself", tm, imclass_dmethod, qualified_classname);
       } else {
-	Swig_warning(WARN_dart_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jtype typemap defined for %s\n", SwigType_str(returntype, 0));
+	Swig_warning(WARN_DART_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jtype typemap defined for %s\n", SwigType_str(returntype, 0));
       }
     }
 
@@ -4109,8 +4110,8 @@ public:
       if (Swig_typemap_lookup("directorin", tp, "", 0)
 	  && (jdesc = Getattr(tp, "tmap:directorin:descriptor"))) {
 
-	// Objects marshalled passing a dart class across JNI boundary use jobject - the nouse flag indicates this
-	// We need the specific dart class name instead of the generic 'Ldart/lang/Object;'
+	// Objects marshalled passing a Dart class across JNI boundary use jobject - the nouse flag indicates this
+	// We need the specific Dart class name instead of the generic 'Ldart/lang/Object;'
 	if (GetFlag(tp, "tmap:directorin:nouse"))
 	  jdesc = cdesc;
 	String *jnidesc_canon = canonicalizeJNIDescriptor(jdesc, tp);
@@ -4125,7 +4126,7 @@ public:
 
       Delete(tp);
     } else {
-      Swig_warning(WARN_dart_TYPEMAP_JNI_UNDEF, input_file, line_number, "No jni typemap defined for %s for use in %s::%s (skipping director method)\n", 
+      Swig_warning(WARN_DART_TYPEMAP_JNI_UNDEF, input_file, line_number, "No jni typemap defined for %s for use in %s::%s (skipping director method)\n", 
 	  SwigType_str(returntype, 0), SwigType_namestr(c_classname), SwigType_namestr(name));
       output_director = false;
     }
@@ -4143,7 +4144,7 @@ public:
     Swig_typemap_attach_parms("directorargout", l, w);
 
     if (!ignored_method) {
-      /* Add dart environment pointer to wrapper */
+      /* Add Dart environment pointer to wrapper */
       String *jenvstr = NewString("jenv");
       String *jobjstr = NewString("swigjobj");
 
@@ -4168,7 +4169,7 @@ public:
       }
       Delete(super_call);
     } else {
-      Printf(w->code, "SWIG_dartThrowException(JNIEnvWrapper(this).getJNIEnv(), SWIG_dartDirectorPureVirtual, ");
+      Printf(w->code, "SWIG_DartThrowException(JNIEnvWrapper(this).getJNIEnv(), SWIG_DartDirectorPureVirtual, ");
       Printf(w->code, "\"Attempted to invoke pure virtual method %s::%s.\");\n", SwigType_namestr(c_classname), SwigType_namestr(name));
 
       /* Make sure that we return something in the case of a pure
@@ -4185,7 +4186,7 @@ public:
       Printf(w->code, "if (swigjobj && jenv->IsSameObject(swigjobj, NULL) == JNI_FALSE) {\n");
     }
 
-    /* Start the dart field descriptor for the intermediate class's upcall (insert jself object) */
+    /* Start the Dart field descriptor for the intermediate class's upcall (insert jself object) */
     Parm *tp = NewParmNode(c_classname, n);
     String *jdesc;
 
@@ -4204,7 +4205,7 @@ public:
 
     Delete(tp);
 
-    /* Go through argument list, convert from native to dart */
+    /* Go through argument list, convert from native to Dart */
     for (i = 0, p = l; p; ++i) {
       /* Is this superfluous? */
       while (checkAttribute(p, "tmap:directorin:numinputs", "0")) {
@@ -4242,8 +4243,8 @@ public:
 	    && (tm = Getattr(p, "tmap:directorin"))
 	    && (cdesc = Getattr(p, "tmap:directorin:descriptor"))) {
 
-	  // Objects marshalled by passing a dart class across the JNI boundary use jobject as the JNI type - 
-	  // the nouse flag indicates this. We need the specific dart class name instead of the generic 'Ldart/lang/Object;'
+	  // Objects marshalled by passing a Dart class across the JNI boundary use jobject as the JNI type - 
+	  // the nouse flag indicates this. We need the specific Dart class name instead of the generic 'Ldart/lang/Object;'
 	  if (GetFlag(tp, "tmap:directorin:nouse"))
 	    jdesc = cdesc;
 	  String *jni_canon = canonicalizeJNIDescriptor(jdesc, tp);
@@ -4283,12 +4284,12 @@ public:
 	      Append(classdesc, jni_canon);
 	      Delete(jni_canon);
 	    } else {
-	      Swig_warning(WARN_dart_TYPEMAP_dartDIRECTORIN_UNDEF, input_file, line_number, "No dartdirectorin typemap defined for %s for use in %s::%s (skipping director method)\n", 
+	      Swig_warning(WARN_DART_TYPEMAP_DARTDIRECTORIN_UNDEF, input_file, line_number, "No dartdirectorin typemap defined for %s for use in %s::%s (skipping director method)\n", 
 		  SwigType_str(pt, 0), SwigType_namestr(c_classname), SwigType_namestr(name));
 	      output_director = false;
 	    }
 	  } else {
-	    Swig_warning(WARN_dart_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jtype typemap defined for %s for use in %s::%s (skipping director method)\n", 
+	    Swig_warning(WARN_DART_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jtype typemap defined for %s for use in %s::%s (skipping director method)\n", 
 		SwigType_str(pt, 0), SwigType_namestr(c_classname), SwigType_namestr(name));
 	    output_director = false;
 	  }
@@ -4298,22 +4299,22 @@ public:
 	  Delete(desc_tm);
 	} else {
 	  if (!desc_tm) {
-	    Swig_warning(WARN_dart_TYPEMAP_dartDIRECTORIN_UNDEF, input_file, line_number,
+	    Swig_warning(WARN_DART_TYPEMAP_DARTDIRECTORIN_UNDEF, input_file, line_number,
 			 "No or improper directorin typemap defined for %s for use in %s::%s (skipping director method)\n", 
 			 SwigType_str(c_param_type, 0), SwigType_namestr(c_classname), SwigType_namestr(name));
 	    p = nextSibling(p);
 	  } else if (!jdesc) {
-	    Swig_warning(WARN_dart_TYPEMAP_DIRECTORIN_NODESC, input_file, line_number,
+	    Swig_warning(WARN_DART_TYPEMAP_DIRECTORIN_NODESC, input_file, line_number,
 			 "Missing JNI descriptor in directorin typemap defined for %s for use in %s::%s (skipping director method)\n", 
 			 SwigType_str(c_param_type, 0), SwigType_namestr(c_classname), SwigType_namestr(name));
 	    p = Getattr(p, "tmap:directorin:next");
 	  } else if (!tm) {
-	    Swig_warning(WARN_dart_TYPEMAP_dartDIRECTORIN_UNDEF, input_file, line_number,
+	    Swig_warning(WARN_DART_TYPEMAP_DARTDIRECTORIN_UNDEF, input_file, line_number,
 			 "No or improper directorin typemap defined for argument %s for use in %s::%s (skipping director method)\n", 
 			 SwigType_str(pt, 0), SwigType_namestr(c_classname), SwigType_namestr(name));
 	    p = nextSibling(p);
 	  } else if (!cdesc) {
-	    Swig_warning(WARN_dart_TYPEMAP_DIRECTORIN_NODESC, input_file, line_number,
+	    Swig_warning(WARN_DART_TYPEMAP_DIRECTORIN_NODESC, input_file, line_number,
 			 "Missing JNI descriptor in directorin typemap defined for %s for use in %s::%s (skipping director method)\n", 
 			 SwigType_str(pt, 0), SwigType_namestr(c_classname), SwigType_namestr(name));
 	    p = Getattr(p, "tmap:directorin:next");
@@ -4323,7 +4324,7 @@ public:
 	}
 
       } else {
-	Swig_warning(WARN_dart_TYPEMAP_JNI_UNDEF, input_file, line_number, "No jni typemap defined for %s for use in %s::%s (skipping director method)\n", 
+	Swig_warning(WARN_DART_TYPEMAP_JNI_UNDEF, input_file, line_number, "No jni typemap defined for %s for use in %s::%s (skipping director method)\n", 
 	    SwigType_str(pt, 0), SwigType_namestr(c_classname), SwigType_namestr(name));
 	output_director = false;
 	p = nextSibling(p);
@@ -4346,11 +4347,11 @@ public:
     Delete(target);
 
     // Add any exception specifications to the methods in the director class
-    // Get any dart exception classes in the throws typemap
+    // Get any Dart exception classes in the throws typemap
     ParmList *throw_parm_list = NULL;
 
-    // May need to add dart throws clause to director methods if %catches defined
-    // Get any dart exception classes in the throws typemap
+    // May need to add Dart throws clause to director methods if %catches defined
+    // Get any Dart exception classes in the throws typemap
     ParmList *catches_list = Getattr(n, "catchlist");
     if (catches_list) {
       Swig_typemap_attach_parms("throws", catches_list, 0);
@@ -4442,7 +4443,7 @@ public:
 
       Printf(w->code, "jenv->%s(Swig::jclass_%s, Swig::director_method_ids[%s], %s);\n", methop, imclass_name, methid, jupcall_args);
 
-      // Generate code to handle any dart exception thrown by director delegation
+      // Generate code to handle any Dart exception thrown by director delegation
       directorExceptHandler(n, catches_list ? catches_list : throw_parm_list, w);
 
       if (!is_void) {
@@ -4484,7 +4485,7 @@ public:
 
       /* Terminate wrapper code */
       Printf(w->code, "} else {\n");
-      // Printf(w->code, "SWIG_dartThrowException(jenv, SWIG_dartNullPointerException, \"null upcall object in %s::%s \");\n",
+      // Printf(w->code, "SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, \"null upcall object in %s::%s \");\n",
       // throw cpp exception instead of dart
       Printf(w->code, "throw Swig::DirectorException(\"null upcall object in %s::%s\");\n",
 	     SwigType_namestr(c_classname), SwigType_namestr(name));
@@ -4546,9 +4547,9 @@ public:
   /* ------------------------------------------------------------
    * directorExceptHandler()
    *
-   * Emit code to map dart exceptions back to C++ exceptions when
+   * Emit code to map Dart exceptions back to C++ exceptions when
    * feature("director:except") is applied to a method node.
-   * This is generated after the dart method upcall.
+   * This is generated after the Dart method upcall.
    * ------------------------------------------------------------ */
 
   void directorExceptHandler(Node *n, ParmList *throw_parm_list, Wrapper *w) {
@@ -4836,13 +4837,13 @@ public:
       // Generally, derived classes have a mix of overridden and
       // non-overridden methods and it is worth making a GetMethodID
       // check during initialization to determine if each method is
-      // overridden, thus avoiding unnecessary calls into dart.
+      // overridden, thus avoiding unnecessary calls into Dart.
       //
       // On the other hand, when derived classes are
       // expected to override all director methods then the
       // GetMethodID calls are inefficient, and it is better to let
-      // the director unconditionally call up into dart.  The resulting code
-      // will still behave correctly (though less efficiently) when dart
+      // the director unconditionally call up into Dart.  The resulting code
+      // will still behave correctly (though less efficiently) when Dart
       // code doesn't override a given method.
       //
       // The assumeoverride feature on a director controls whether or not
@@ -4922,14 +4923,14 @@ public:
   NestedClassSupport nestedClassesSupport() const {
     return NCS_Full;
   }
-};				/* class dart */
+};				/* class DART */
 
 /* -----------------------------------------------------------------------------
  * swig_dart()    - Instantiate module
  * ----------------------------------------------------------------------------- */
 
 static Language *new_swig_dart() {
-  return new dart();
+  return new DART();
 }
 extern "C" Language *swig_dart(void) {
   return new_swig_dart();
@@ -4939,14 +4940,14 @@ extern "C" Language *swig_dart(void) {
  * Static member variables
  * ----------------------------------------------------------------------------- */
 
-const char *dart::usage = "\
-dart Options (available with -dart)\n\
-     -doxygen        - Convert C++ doxygen comments to dartDoc comments in proxy classes\n\
+const char *DART::usage = "\
+Dart Options (available with -dart)\n\
+     -doxygen        - Convert C++ doxygen comments to DartDoc comments in proxy classes\n\
      -debug-doxygen-parser     - Display doxygen parser module debugging information\n\
      -debug-doxygen-translator - Display doxygen translator module debugging information\n\
      -nopgcpp        - Suppress premature garbage collection prevention parameter\n\
      -noproxy        - Generate the low-level functional interface instead\n\
                        of proxy classes\n\
      -oldvarnames    - Old intermediary method names for variable wrappers\n\
-     -package <name> - Set name of the dart package to <name>\n\
+     -package <name> - Set name of the Dart package to <name>\n\
 \n";
