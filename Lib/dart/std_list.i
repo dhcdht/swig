@@ -13,9 +13,9 @@
 #include <stdexcept>
 %}
 
-%fragment("SWIG_ListSize", "header", fragment="SWIG_JavaIntFromSize_t") {
+%fragment("SWIG_ListSize", "header", fragment="SWIG_DartIntFromSize_t") {
 SWIGINTERN jint SWIG_ListSize(size_t size) {
-  jint sz = SWIG_JavaIntFromSize_t(size);
+  jint sz = SWIG_DartIntFromSize_t(size);
   if (sz == -1)
     throw std::out_of_range("list size is too large to fit into a Java int");
   return sz;

@@ -27,7 +27,7 @@ class wstring;
 
 %typemap(in) wstring
 %{if(!$input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::wstring");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "null std::wstring");
     return $null;
   }
   const jchar *$1_pstr = jenv->GetStringChars($input, 0);
@@ -44,7 +44,7 @@ class wstring;
 
 %typemap(directorout) wstring
 %{if(!$input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::wstring");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "null std::wstring");
     return $null;
   }
   const jchar *$1_pstr = jenv->GetStringChars($input, 0);
@@ -92,7 +92,7 @@ class wstring;
   for (size_t i = 0; i < $1.size(); ++i) {
     message[i] = (char)$1[i];
   }
-  SWIG_JavaThrowException(jenv, SWIG_JavaRuntimeException, message.c_str());
+  SWIG_DartThrowException(jenv, SWIG_DartRuntimeException, message.c_str());
   return $null; %}
 
 // const wstring &
@@ -104,7 +104,7 @@ class wstring;
 
 %typemap(in) const wstring &
 %{if(!$input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::wstring");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "null std::wstring");
     return $null;
   }
   const jchar *$1_pstr = jenv->GetStringChars($input, 0);
@@ -123,7 +123,7 @@ class wstring;
 
 %typemap(directorout,warning=SWIGWARN_TYPEMAP_THREAD_UNSAFE_MSG) const wstring & 
 %{if(!$input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::wstring");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "null std::wstring");
     return $null;
   }
   const jchar *$1_pstr = jenv->GetStringChars($input, 0);
@@ -173,7 +173,7 @@ class wstring;
   for (size_t i = 0; i < $1.size(); ++i) {
     message[i] = (char)$1[i];
   }
-  SWIG_JavaThrowException(jenv, SWIG_JavaRuntimeException, message.c_str());
+  SWIG_DartThrowException(jenv, SWIG_DartRuntimeException, message.c_str());
   return $null; %}
 
 }

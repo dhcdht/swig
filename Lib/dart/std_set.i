@@ -17,9 +17,9 @@
 #include <stdexcept>
 %}
 
-%fragment("SWIG_SetSize", "header", fragment="SWIG_JavaIntFromSize_t") {
+%fragment("SWIG_SetSize", "header", fragment="SWIG_DartIntFromSize_t") {
   SWIGINTERN jint SWIG_SetSize(size_t size) {
-    jint sz = SWIG_JavaIntFromSize_t(size);
+    jint sz = SWIG_DartIntFromSize_t(size);
     if (sz == -1) {
       throw std::out_of_range("set size is too large to fit into a Java int");
     }

@@ -26,7 +26,7 @@
   // plain value
   argp = (*(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input) ? (*(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input)->get() : 0;
   if (!argp) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null $1_type");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "Attempt to dereference null $1_type");
     return $null;
   }
   $1 = *argp;
@@ -61,7 +61,7 @@
   // plain reference
   $1 = ($1_ltype)((*(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input) ? (*(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input)->get() : 0);
   if(!$1) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "$1_type reference is null");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "$1_type reference is null");
     return $null;
   }
 %}
@@ -337,7 +337,7 @@
 %typemap(in) CONST TYPE ($&1_type argp = 0) %{
   argp = (*(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input) ? (*(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input)->get() : 0;
   if (!argp) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "Attempt to dereference null $1_type");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "Attempt to dereference null $1_type");
     return $null;
   }
   $1 = *argp; %}
@@ -356,7 +356,7 @@
 %typemap(in) CONST TYPE & %{
   $1 = ($1_ltype)((*(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input) ? (*(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input)->get() : 0);
   if (!$1) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "$1_type reference is null");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "$1_type reference is null");
     return $null;
   } %}
 %typemap(out, fragment="SWIG_null_deleter") CONST TYPE &

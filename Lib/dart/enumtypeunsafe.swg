@@ -28,7 +28,7 @@
 
 %typemap(throws) const enum SWIGTYPE &
 %{ (void)$1;
-   SWIG_JavaThrowException(jenv, SWIG_JavaRuntimeException, "C++ $1_type exception thrown"); %}
+   SWIG_DartThrowException(jenv, SWIG_DartRuntimeException, "C++ $1_type exception thrown"); %}
 
 %typemap(javain) const enum SWIGTYPE & "$javainput"
 %typemap(javaout) const enum SWIGTYPE & {
@@ -53,7 +53,7 @@
 
 %typemap(throws) enum SWIGTYPE
 %{ (void)$1;
-   SWIG_JavaThrowException(jenv, SWIG_JavaRuntimeException, "C++ $1_type exception thrown"); %}
+   SWIG_DartThrowException(jenv, SWIG_DartRuntimeException, "C++ $1_type exception thrown"); %}
 
 %typemap(javain) enum SWIGTYPE "$javainput"
 %typemap(javaout) enum SWIGTYPE {

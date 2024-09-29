@@ -107,11 +107,11 @@
 
 %typemap(in) char **STRING_OUT($*1_ltype temp) {
   if (!$input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "array null");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "array null");
     return $null;
   }
   if (JCALL1(GetArrayLength, jenv, $input) == 0) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, "Array must contain at least 1 element");
+    SWIG_DartThrowException(jenv, SWIG_DartIndexOutOfBoundsException, "Array must contain at least 1 element");
     return $null;
   }
   $1 = &temp; 
@@ -180,7 +180,7 @@
 %typemap(in) unsigned char *NIOBUFFER {  
   $1 = (unsigned char *) JCALL1(GetDirectBufferAddress, jenv, $input); 
   if ($1 == NULL) {  
-    SWIG_JavaThrowException(jenv, SWIG_JavaRuntimeException, "Unable to get address of a java.nio.ByteBuffer direct byte buffer. Buffer must be a direct buffer and not a non-direct buffer.");  
+    SWIG_DartThrowException(jenv, SWIG_DartRuntimeException, "Unable to get address of a java.nio.ByteBuffer direct byte buffer. Buffer must be a direct buffer and not a non-direct buffer.");  
   }  
 }  
 %typemap(memberin) unsigned char *NIOBUFFER {  

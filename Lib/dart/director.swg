@@ -11,9 +11,9 @@
 
 #include <exception>
 
-#if defined(SWIG_JAVA_USE_THREAD_NAME)
+#if defined(SWIG_Dart_USE_THREAD_NAME)
 
-#if !defined(SWIG_JAVA_GET_THREAD_NAME)
+#if !defined(SWIG_Dart_GET_THREAD_NAME)
 namespace Swig {
   SWIGINTERN int GetThreadName(char *name, size_t len);
 }
@@ -51,7 +51,7 @@ SWIGINTERN int Swig::GetThreadName(char *name, size_t len) {
 
 #endif
 
-#if defined(SWIG_JAVA_DETACH_ON_THREAD_END)
+#if defined(SWIG_Dart_DETACH_ON_THREAD_END)
 #include <pthread.h>
 #endif
 
@@ -137,7 +137,7 @@ namespace Swig {
       }
     }
 
-#if defined(SWIG_JAVA_DETACH_ON_THREAD_END)
+#if defined(SWIG_Dart_DETACH_ON_THREAD_END)
     static void detach(void *jvm) {
       static_cast<JavaVM *>(jvm)->DetachCurrentThread();
     }
@@ -157,7 +157,7 @@ namespace Swig {
     bool weak_global_;
   };
 
-#if defined(SWIG_JAVA_DETACH_ON_THREAD_END)
+#if defined(SWIG_Dart_DETACH_ON_THREAD_END)
   pthread_key_t JObjectWrapper::detach_key_;
 #endif
 
@@ -204,7 +204,7 @@ namespace Swig {
         args.version = JNI_VERSION_1_2;
         args.group = SWIG_NULLPTR;
         args.name = SWIG_NULLPTR;
-#if defined(SWIG_JAVA_USE_THREAD_NAME)
+#if defined(SWIG_Dart_USE_THREAD_NAME)
         char thread_name[64];  // MAX_TASK_COMM_LEN=16 is hard-coded in the Linux kernel and MacOS has MAXTHREADNAMESIZE=64.
         if (Swig::GetThreadName(thread_name, sizeof(thread_name)) == 0) {
           args.name = thread_name;
@@ -215,7 +215,7 @@ namespace Swig {
 #endif
         }
 #endif
-#if defined(SWIG_JAVA_ATTACH_CURRENT_THREAD_AS_DAEMON)
+#if defined(SWIG_Dart_ATTACH_CURRENT_THREAD_AS_DAEMON)
         // Attach a daemon thread to the JVM. Useful when the JVM should not wait for
         // the thread to exit upon shutdown. Only for jdk-1.4 and later.
         director_->swig_jvm_->AttachCurrentThreadAsDaemon(jenv, &args);
@@ -223,7 +223,7 @@ namespace Swig {
         director_->swig_jvm_->AttachCurrentThread(jenv, &args);
 #endif
 
-#if defined(SWIG_JAVA_DETACH_ON_THREAD_END)
+#if defined(SWIG_Dart_DETACH_ON_THREAD_END)
         // At least on Android 6, detaching after every call causes a memory leak.
         // Instead, register a thread desructor and detach only when the thread ends.
         // See https://developer.android.com/training/articles/perf-jni#threads
@@ -234,7 +234,7 @@ namespace Swig {
 #endif
       }
       ~JNIEnvWrapper() {
-#if !defined(SWIG_JAVA_DETACH_ON_THREAD_END) && !defined(SWIG_JAVA_NO_DETACH_CURRENT_THREAD)
+#if !defined(SWIG_Dart_DETACH_ON_THREAD_END) && !defined(SWIG_Dart_NO_DETACH_CURRENT_THREAD)
         // Some JVMs, eg jdk-1.4.2 and lower on Solaris have a bug and crash with the DetachCurrentThread call.
         // However, without this call, the JVM hangs on exit when the thread was not created by the JVM and creates a memory leak.
         if (env_status == JNI_EDETACHED)
@@ -304,7 +304,7 @@ namespace Swig {
     }
 
     // Change C++ object's ownership, relative to Java
-    void swig_java_change_ownership(JNIEnv *jenv, jobject jself, bool take_or_release) {
+    void SWIG_Dart_change_ownership(JNIEnv *jenv, jobject jself, bool take_or_release) {
       swig_self_.java_change_ownership(jenv, jself, take_or_release);
     }
   };
@@ -465,7 +465,7 @@ namespace Swig {
           if (ctorMethodID) {
             jenv->ThrowNew(throwableclass, what());
           } else {
-            SWIG_JavaThrowException(jenv, SWIG_JavaRuntimeException, what());
+            SWIG_DartThrowException(jenv, SWIG_DartRuntimeException, what());
           }
         }
       }

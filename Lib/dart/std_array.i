@@ -4,9 +4,9 @@
 
 %include <std_common.i>
 
-%fragment("SWIG_ArraySize", "header", fragment="SWIG_JavaIntFromSize_t") {
+%fragment("SWIG_ArraySize", "header", fragment="SWIG_DartIntFromSize_t") {
   SWIGINTERN jint SWIG_ArraySize(size_t size) {
-    jint sz = SWIG_JavaIntFromSize_t(size);
+    jint sz = SWIG_DartIntFromSize_t(size);
     if (sz == -1) {
       throw std::out_of_range("array size is too large to fit into a Java int");
     }

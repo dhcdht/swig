@@ -100,7 +100,7 @@ INPUT_TYPEMAP(double, jdouble, double, "D");
   int i;
 
   if (!$input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "BigInteger null");
     return $null;
   }
   clazz = JCALL1(GetObjectClass, jenv, $input);
@@ -193,11 +193,11 @@ There are no char *OUTPUT typemaps, however you can apply the signed char * type
 %typemap(in) TYPE *OUTPUT($*1_ltype temp), TYPE &OUTPUT($*1_ltype temp)
 {
   if (!$input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "array null");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "array null");
     return $null;
   }
   if (JCALL1(GetArrayLength, jenv, $input) == 0) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, "Array must contain at least 1 element");
+    SWIG_DartThrowException(jenv, SWIG_DartIndexOutOfBoundsException, "Array must contain at least 1 element");
     return $null;
   }
   temp = ($*1_ltype)0;
@@ -263,11 +263,11 @@ OUTPUT_TYPEMAP(double, jdouble, double, Double, "[D", jdoubleArray);
 %typemap(in) bool *OUTPUT($*1_ltype temp), bool &OUTPUT($*1_ltype temp)
 {
   if (!$input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "array null");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "array null");
     return $null;
   }
   if (JCALL1(GetArrayLength, jenv, $input) == 0) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, "Array must contain at least 1 element");
+    SWIG_DartThrowException(jenv, SWIG_DartIndexOutOfBoundsException, "Array must contain at least 1 element");
     return $null;
   }
   temp = false;
@@ -383,11 +383,11 @@ There are no char *INOUT typemaps, however you can apply the signed char * typem
 
 %typemap(in) TYPE *INOUT, TYPE &INOUT {
   if (!$input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "array null");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "array null");
     return $null;
   }
   if (JCALL1(GetArrayLength, jenv, $input) == 0) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, "Array must contain at least 1 element");
+    SWIG_DartThrowException(jenv, SWIG_DartIndexOutOfBoundsException, "Array must contain at least 1 element");
     return $null;
   }
   $1 = ($1_ltype) JCALL2(Get##JAVATYPE##ArrayElements, jenv, $input, 0); 
@@ -453,11 +453,11 @@ INOUT_TYPEMAP(double, jdouble, double, Double, "[D", jdoubleArray);
    as a jboolean isn't always the same size as a bool */
 %typemap(in) bool *INOUT (bool btemp, jboolean *jbtemp), bool &INOUT (bool btemp, jboolean *jbtemp) {
   if (!$input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "array null");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "array null");
     return $null;
   }
   if (JCALL1(GetArrayLength, jenv, $input) == 0) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, "Array must contain at least 1 element");
+    SWIG_DartThrowException(jenv, SWIG_DartIndexOutOfBoundsException, "Array must contain at least 1 element");
     return $null;
   }
   jbtemp = JCALL2(GetBooleanArrayElements, jenv, $input, 0);
@@ -497,16 +497,16 @@ INOUT_TYPEMAP(double, jdouble, double, Double, "[D", jdoubleArray);
   int i;
 
   if (!$input) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "array null");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "array null");
     return $null;
   }
   if (JCALL1(GetArrayLength, jenv, $input) == 0) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, "Array must contain at least 1 element");
+    SWIG_DartThrowException(jenv, SWIG_DartIndexOutOfBoundsException, "Array must contain at least 1 element");
     return $null;
   }
   bigint = JCALL2(GetObjectArrayElement, jenv, $input, 0);
   if (!bigint) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "array element null");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "array element null");
     return $null;
   }
   clazz = JCALL1(GetObjectClass, jenv, bigint);

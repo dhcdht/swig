@@ -29,7 +29,7 @@ class string_view;
 
 %typemap(in) string_view
 %{ if(!$input) {
-     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+     SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "null string");
      return $null;
    }
    const char *$1_pstr = (const char *)jenv->GetStringUTFChars($input, 0);
@@ -44,7 +44,7 @@ class string_view;
 %typemap(directorout,warning=SWIGWARN_TYPEMAP_THREAD_UNSAFE_MSG) string_view
 %{ if(!$input) {
      if (!jenv->ExceptionCheck()) {
-       SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+       SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "null string");
      }
      return $null;
    }
@@ -76,7 +76,7 @@ class string_view;
 %typemap(typecheck) string_view = char *;
 
 %typemap(throws) string_view
-%{ SWIG_JavaThrowException(jenv, SWIG_JavaRuntimeException, std::string($1).c_str());
+%{ SWIG_DartThrowException(jenv, SWIG_DartRuntimeException, std::string($1).c_str());
    return $null; %}
 
 // const string_view &
@@ -88,7 +88,7 @@ class string_view;
 
 %typemap(in) const string_view &
 %{ if(!$input) {
-     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+     SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "null string");
      return $null;
    }
    const char *$1_pstr = (const char *)jenv->GetStringUTFChars($input, 0);
@@ -103,7 +103,7 @@ class string_view;
 
 %typemap(directorout,warning=SWIGWARN_TYPEMAP_THREAD_UNSAFE_MSG) const string_view &
 %{ if(!$input) {
-     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+     SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "null string");
      return $null;
    }
    const char *$1_pstr = (const char *)jenv->GetStringUTFChars($input, 0);
@@ -132,7 +132,7 @@ class string_view;
 %typemap(typecheck) const string_view & = char *;
 
 %typemap(throws) const string_view &
-%{ SWIG_JavaThrowException(jenv, SWIG_JavaRuntimeException, std::string($1).c_str());
+%{ SWIG_DartThrowException(jenv, SWIG_DartRuntimeException, std::string($1).c_str());
    return $null; %}
 
 }

@@ -30,7 +30,6 @@
 #endif
 
 %insert(runtime) %{
-#include <jni.h>
 #include <stdlib.h>
 #include <string.h>
 %}
@@ -38,41 +37,41 @@
 %insert(runtime) %{
 /* Support for throwing Java exceptions */
 typedef enum {
-  SWIG_JavaOutOfMemoryError = 1,
-  SWIG_JavaIOException,
-  SWIG_JavaRuntimeException,
-  SWIG_JavaIndexOutOfBoundsException,
-  SWIG_JavaArithmeticException,
-  SWIG_JavaIllegalArgumentException,
-  SWIG_JavaNullPointerException,
-  SWIG_JavaDirectorPureVirtual,
-  SWIG_JavaUnknownError,
-  SWIG_JavaIllegalStateException,
-} SWIG_JavaExceptionCodes;
+  SWIG_DartOutOfMemoryError = 1,
+  SWIG_DartIOException,
+  SWIG_DartRuntimeException,
+  SWIG_DartIndexOutOfBoundsException,
+  SWIG_DartArithmeticException,
+  SWIG_DartIllegalArgumentException,
+  SWIG_DartNullPointerException,
+  SWIG_DartDirectorPureVirtual,
+  SWIG_DartUnknownError,
+  SWIG_DartIllegalStateException,
+} SWIG_DartExceptionCodes;
 
 typedef struct {
-  SWIG_JavaExceptionCodes code;
+  SWIG_DartExceptionCodes code;
   const char *java_exception;
-} SWIG_JavaExceptions_t;
+} SWIG_DartExceptions_t;
 %}
 
 %insert(runtime) {
-static void SWIGUNUSED SWIG_JavaThrowException(JNIEnv *jenv, SWIG_JavaExceptionCodes code, const char *msg) {
+static void SWIGUNUSED SWIG_DartThrowException(JNIEnv *jenv, SWIG_DartExceptionCodes code, const char *msg) {
   jclass excep;
-  static const SWIG_JavaExceptions_t java_exceptions[] = {
-    { SWIG_JavaOutOfMemoryError, "java/lang/OutOfMemoryError" },
-    { SWIG_JavaIOException, "java/io/IOException" },
-    { SWIG_JavaRuntimeException, "java/lang/RuntimeException" },
-    { SWIG_JavaIndexOutOfBoundsException, "java/lang/IndexOutOfBoundsException" },
-    { SWIG_JavaArithmeticException, "java/lang/ArithmeticException" },
-    { SWIG_JavaIllegalArgumentException, "java/lang/IllegalArgumentException" },
-    { SWIG_JavaNullPointerException, "java/lang/NullPointerException" },
-    { SWIG_JavaDirectorPureVirtual, "java/lang/RuntimeException" },
-    { SWIG_JavaUnknownError,  "java/lang/UnknownError" },
-    { SWIG_JavaIllegalStateException, "java/lang/IllegalStateException" },
-    { (SWIG_JavaExceptionCodes)0,  "java/lang/UnknownError" }
+  static const SWIG_DartExceptions_t java_exceptions[] = {
+    { SWIG_DartOutOfMemoryError, "java/lang/OutOfMemoryError" },
+    { SWIG_DartIOException, "java/io/IOException" },
+    { SWIG_DartRuntimeException, "java/lang/RuntimeException" },
+    { SWIG_DartIndexOutOfBoundsException, "java/lang/IndexOutOfBoundsException" },
+    { SWIG_DartArithmeticException, "java/lang/ArithmeticException" },
+    { SWIG_DartIllegalArgumentException, "java/lang/IllegalArgumentException" },
+    { SWIG_DartNullPointerException, "java/lang/NullPointerException" },
+    { SWIG_DartDirectorPureVirtual, "java/lang/RuntimeException" },
+    { SWIG_DartUnknownError,  "java/lang/UnknownError" },
+    { SWIG_DartIllegalStateException, "java/lang/IllegalStateException" },
+    { (SWIG_DartExceptionCodes)0,  "java/lang/UnknownError" }
   };
-  const SWIG_JavaExceptions_t *except_ptr = java_exceptions;
+  const SWIG_DartExceptions_t *except_ptr = java_exceptions;
 
   while (except_ptr->code != code && except_ptr->code)
     except_ptr++;
@@ -87,5 +86,5 @@ static void SWIGUNUSED SWIG_JavaThrowException(JNIEnv *jenv, SWIG_JavaExceptionC
 %insert(runtime) %{
 /* Contract support */
 
-#define SWIG_contract_assert(nullreturn, expr, msg) do { if (!(expr)) {SWIG_JavaThrowException(jenv, SWIG_JavaIllegalArgumentException, msg); return nullreturn; } } while (0)
+#define SWIG_contract_assert(nullreturn, expr, msg) do { if (!(expr)) {SWIG_DartThrowException(jenv, SWIG_DartIllegalArgumentException, msg); return nullreturn; } } while (0)
 %}

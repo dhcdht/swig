@@ -300,19 +300,19 @@ SWIGINTERN jint SWIG_dartIntFromSize_t(size_t size) {
                           double
   "$dartcall"
 
-%typemap(out) bool           %{ $result = (jboolean)$1; %}
-%typemap(out) char           %{ $result = (jchar)$1; %}
-%typemap(out) signed char    %{ $result = (jbyte)$1; %}
-%typemap(out) unsigned char  %{ $result = (jshort)$1; %}
-%typemap(out) short          %{ $result = (jshort)$1; %}
-%typemap(out) unsigned short %{ $result = (jint)$1; %}
-%typemap(out) int            %{ $result = (jint)$1; %}
-%typemap(out) unsigned int   %{ $result = (jlong)$1; %}
-%typemap(out) long           %{ $result = (jint)$1; %}
-%typemap(out) unsigned long  %{ $result = (jlong)$1; %}
-%typemap(out) long long      %{ $result = (jlong)$1; %}
-%typemap(out) float          %{ $result = (jfloat)$1; %}
-%typemap(out) double         %{ $result = (jdouble)$1; %}
+%typemap(out) bool           %{ $result = (bool)$1; %}
+%typemap(out) char           %{ $result = (char)$1; %}
+%typemap(out) signed char    %{ $result = (signed char)$1; %}
+%typemap(out) unsigned char  %{ $result = (unsigned char)$1; %}
+%typemap(out) short          %{ $result = (short)$1; %}
+%typemap(out) unsigned short %{ $result = (unsigned short)$1; %}
+%typemap(out) int            %{ $result = (int)$1; %}
+%typemap(out) unsigned int   %{ $result = (unsigned int)$1; %}
+%typemap(out) long           %{ $result = (long)$1; %}
+%typemap(out) unsigned long  %{ $result = (unsigned long)$1; %}
+%typemap(out) long long      %{ $result = (long long)$1; %}
+%typemap(out) float          %{ $result = (float)$1; %}
+%typemap(out) double         %{ $result = (double)$1; %}
 
 /* unsigned long long */
 /* Convert from BigInteger using the toByteArray member function */

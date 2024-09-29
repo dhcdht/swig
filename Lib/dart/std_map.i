@@ -17,9 +17,9 @@
 #include <stdexcept>
 %}
 
-%fragment("SWIG_MapSize", "header", fragment="SWIG_JavaIntFromSize_t") {
+%fragment("SWIG_MapSize", "header", fragment="SWIG_DartIntFromSize_t") {
   SWIGINTERN jint SWIG_MapSize(size_t size) {
-    jint sz = SWIG_JavaIntFromSize_t(size);
+    jint sz = SWIG_DartIntFromSize_t(size);
     if (sz == -1) {
       throw std::out_of_range("map size is too large to fit into a Java int");
     }

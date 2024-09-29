@@ -9,17 +9,17 @@
 %typemap(in) (int ARGC, char **ARGV) {
   $1_ltype i, len;
   if ($input == (jobjectArray)0) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
+    SWIG_DartThrowException(jenv, SWIG_DartNullPointerException, "null array");
     return $null;
   }
   len = ($1_ltype)JCALL1(GetArrayLength, jenv, $input);
   if (len < 0) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaRuntimeException, "array length negative");
+    SWIG_DartThrowException(jenv, SWIG_DartRuntimeException, "array length negative");
     return $null;
   }
   $2 = ($2_ltype) malloc((len+1)*sizeof($*2_ltype));
   if ($2 == NULL) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "memory allocation failed");
+    SWIG_DartThrowException(jenv, SWIG_DartOutOfMemoryError, "memory allocation failed");
     return $null;
   }
   $1 = len;
