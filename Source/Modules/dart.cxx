@@ -340,8 +340,9 @@ public:
     Node *optionsnode = Getattr(module, "options");
 
     if (optionsnode) {
-      if (Getattr(optionsnode, "jniclassname"))
-	imclass_name = Copy(Getattr(optionsnode, "jniclassname"));
+      if (Getattr(optionsnode, "jniclassname")) {
+	      imclass_name = Copy(Getattr(optionsnode, "jniclassname"));
+      }
       /* check if directors are enabled for this module.  note: this 
        * is a "master" switch, without which no director code will be
        * emitted.  %feature("director") statements are also required
@@ -410,7 +411,7 @@ public:
 
     // Make the intermediary class and module class names. The intermediary class name can be set in the module directive.
     if (!imclass_name) {
-      imclass_name = NewStringf("%sJNI", Getattr(n, "name"));
+      imclass_name = NewStringf("%s", Getattr(n, "name"));
       module_class_name = Copy(Getattr(n, "name"));
     } else {
       // Rename the module name if it is the same as intermediary class name - a backwards compatibility solution
@@ -490,7 +491,7 @@ public:
       Replaceall(package_path, ".", "/");
     }
     String *jniname = makeValidJniName(imclass_name);
-    Printf(wrapper_name, "Dart_%s%s_%%f", jnipackage, jniname);
+    Printf(wrapper_name, "%s_%%f", jniname);
     Delete(jniname);
 
     Swig_name_register("wrapper", Char(wrapper_name));
@@ -1761,7 +1762,7 @@ public:
 
 	  String *wrapper_name = NewString("");
 	  String *imclass_class_jniname = makeValidJniName(imclass_name);
-	  Printf(wrapper_name, "Dart_%s%s_%%f", jnipackage, imclass_class_jniname);
+	  Printf(wrapper_name, "%s_%%f", imclass_class_jniname);
 	  Delete(imclass_class_jniname);
 
 	  Swig_name_unregister("wrapper");
@@ -3793,7 +3794,7 @@ public:
       Printf(f_runtime, "  }\n");
       Printf(f_runtime, "}\n");
 
-      Printf(w->def, "SWIGEXPORT void Dart_%s%s_%s() {", jnipackage, jni_imclass_name, swig_module_init_jni);
+      Printf(w->def, "SWIGEXPORT void %s_%s() {", jni_imclass_name, swig_module_init_jni);
       Printf(w->code, "static struct {\n");
       Printf(w->code, "  const char *method;\n");
       Printf(w->code, "  const char *signature;\n");
@@ -3845,8 +3846,8 @@ public:
 
     code_wrap = NewWrapper();
     Printf(code_wrap->def,
-	   "SWIGEXPORT void Dart_%s%s_%s(unsigned long jself, unsigned long objarg, bool jswig_mem_own, "
-	   "bool jweak_global) {\n", jnipackage, jni_imclass_name, swig_director_connect_jni);
+	   "SWIGEXPORT void %s_%s(unsigned long jself, unsigned long objarg, bool jswig_mem_own, "
+	   "bool jweak_global) {\n", jnipackage, swig_director_connect_jni);
 
     if (smartptr) {
       Printf(code_wrap->code, "  %s *obj = *((%s **)&objarg);\n", smartptr, smartptr);
@@ -3879,8 +3880,8 @@ public:
 
     code_wrap = NewWrapper();
     Printf(code_wrap->def,
-	   "SWIGEXPORT void Dart_%s%s_%s(unsigned long jself, unsigned long objarg, bool jtake_or_release) {\n",
-	   jnipackage, jni_imclass_name, changeown_jnimethod_name);
+	   "SWIGEXPORT void %s_%s(unsigned long jself, unsigned long objarg, bool jtake_or_release) {\n",
+	   jnipackage, changeown_jnimethod_name);
 
     if (smartptr) {
         Printf(code_wrap->code, "  %s *obj = *((%s **)&objarg);\n", smartptr, smartptr);
