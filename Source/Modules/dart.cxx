@@ -2547,7 +2547,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
     if (is_interface)
       Printf(interface_class_code, "  %s %s(", return_type, proxy_function_name);
 
-    Printv(imcall, full_imclass_name, ".$imfuncname(", NIL);
+    Printv(imcall, full_imclass_name, "_$imfuncname(", NIL);
     if (!static_flag) {
       Printf(imcall, "swigCPtr");
 
