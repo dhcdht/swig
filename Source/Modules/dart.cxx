@@ -15,6 +15,7 @@
 #include "cparse.h"
 #include <limits.h>		// for INT_MAX
 #include <ctype.h>
+#include <string>
 // #include "dartdoc.h"
 
 /* Hash type used for upcalls from C/C++ */
@@ -516,7 +517,7 @@ public:
     }
     // Generate the intermediary class
     {
-      String *filen = NewStringf("%s%s.dart", outputDirectory(imclass_package), imclass_name);
+      String *filen = NewStringf("%s%sJNI.dart", outputDirectory(imclass_package), imclass_name);
       File *f_im = NewFile(filen, "w", SWIG_output_files());
       if (!f_im) {
 	FileErrorDisplay(filen);
@@ -552,7 +553,24 @@ public:
       // }
       // Printf(f_im, "{\n");
 
-      Printf(f_im, "import 'dart:ffi';\nimport 'dart:io';\nimport 'package:ffi/ffi.dart';\n\n");
+      String *imbind = NewString("");
+      const char* imbindStr = 
+"\n\
+import 'dart:ffi';\n\
+import 'dart:io';\n\
+import 'package:ffi/ffi.dart';\n\
+\n\
+late final DynamicLibrary _dylib;\n \
+void $imclassname_setDylib(DynamicLibrary dylib) {\n\
+  _dylib = dylib;\n\
+  return;\n\
+}\n\
+\n\
+";
+      Printf(imbind, imbindStr);
+      Replaceall(imbind, "$module", module_class_name);
+      Replaceall(imbind, "$imclassname", imclass_name);
+      Printv(f_im, imbind, NIL);
 
       // Add the intermediary class methods
       Replaceall(imclass_class_code, "$module", module_class_name);
@@ -959,11 +977,12 @@ public:
     }
 
     // Printf(imclass_class_code, "  public final static native %s %s(", im_return_type, overloaded_name);
+    String *im_return_type_lower = Swig_string_lower(im_return_type);
     Printf(imclass_class_code, "late final %s_%s = ptr_%s_%s.asFunction<%s Function(", 
       module_class_name, overloaded_name,
-      module_class_name, overloaded_name, im_return_type
+      module_class_name, overloaded_name, im_return_type_lower
       );
-    Printf(imclass_class_lookup_code, "late final ptr_%s_%s = _lookup<NativeFunction<%s Function(", 
+    Printf(imclass_class_lookup_code, "late final ptr_%s_%s = _dylib.lookup<NativeFunction<%s Function(", 
       module_class_name, overloaded_name, im_return_type
       );
 
@@ -1004,7 +1023,8 @@ public:
         Printf(imclass_class_lookup_code, ", ");
       }
       // Printf(imclass_class_code, "%s %s", im_param_type, arg);
-      Printf(imclass_class_code, "%s", im_param_type);
+      String *im_param_type_lower = Swig_string_lower(im_param_type);
+      Printf(imclass_class_code, "%s", im_param_type_lower);
       Printf(imclass_class_lookup_code, "%s", im_param_type);
 
       // Add parameter to C function
