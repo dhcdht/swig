@@ -54,6 +54,7 @@ class DART:public Language {
   String *module_class_name;	// module class name
   String *constants_interface_name;	// constants interface name
   String *imclass_class_code;	// intermediary class code
+  String *imclass_class_lookup_code;
   String *proxy_class_def;
   String *proxy_class_code;
   String *interface_class_code; // if %feature("interface") was declared for a class, here goes the interface declaration
@@ -130,6 +131,7 @@ public:
       module_class_name(NULL),
       constants_interface_name(NULL),
       imclass_class_code(NULL),
+      imclass_class_lookup_code(NULL),
       proxy_class_def(NULL),
       proxy_class_code(NULL),
       interface_class_code(NULL),
@@ -426,6 +428,7 @@ public:
       return SWIG_ERROR;
 
     imclass_class_code = NewString("");
+    imclass_class_lookup_code = NewString("");
     proxy_class_def = NewString("");
     proxy_class_code = NewString("");
     module_class_constants_code = NewString("");
@@ -535,23 +538,32 @@ public:
       if (imclass_imports)
 	Printf(f_im, "%s\n", imclass_imports);
 
-      if (Len(imclass_class_modifiers) > 0)
-	Printf(f_im, "%s ", imclass_class_modifiers);
-      Printf(f_im, "%s ", imclass_name);
+      // if (Len(imclass_class_modifiers) > 0) {
+    	//   Printf(f_im, "%s ", imclass_class_modifiers);
+      // }
+      // Printf(f_im, "%s ", imclass_name);
 
-      if (imclass_baseclass && *Char(imclass_baseclass))
-	Printf(f_im, "extends %s ", imclass_baseclass);
-      if (Len(imclass_interfaces) > 0)
-	Printv(f_im, "implements ", imclass_interfaces, " ", NIL);
-      Printf(f_im, "{\n");
+      // if (imclass_baseclass && *Char(imclass_baseclass)) {
+	    //   Printf(f_im, "extends %s ", imclass_baseclass);
+      // }
+      // if (Len(imclass_interfaces) > 0) {
+	    //   Printv(f_im, "implements ", imclass_interfaces, " ", NIL);
+      // }
+      // Printf(f_im, "{\n");
+
+      Printf(f_im, "import 'dart:ffi';\nimport 'dart:io';\nimport 'package:ffi/ffi.dart';\n\n");
 
       // Add the intermediary class methods
       Replaceall(imclass_class_code, "$module", module_class_name);
       Replaceall(imclass_class_code, "$imclassname", imclass_name);
       Printv(f_im, imclass_class_code, NIL);
+      Printv(f_im, "\n", NIL);
+      Printv(f_im, imclass_class_lookup_code, NIL);
+      Printv(f_im, "\n", NIL);
       Printv(f_im, imclass_cppcasts_code, NIL);
-      if (Len(imclass_directors) > 0)
-	Printv(f_im, "\n", imclass_directors, NIL);
+      if (Len(imclass_directors) > 0) {
+	      Printv(f_im, "\n", imclass_directors, NIL);
+      }
 
       if (n_dmethods > 0) {
 	Putc('\n', f_im);
@@ -561,7 +573,7 @@ public:
 	Printf(f_im, "  }\n");
       }
       // Finish off the class
-      Printf(f_im, "}\n");
+      // Printf(f_im, "}\n");
       Delete(f_im);
     }
 
@@ -696,6 +708,8 @@ public:
     imclass_name = NULL;
     Delete(imclass_class_code);
     imclass_class_code = NULL;
+    Delete(imclass_class_lookup_code);
+    imclass_class_lookup_code = NULL;
     Delete(proxy_class_def);
     proxy_class_def = NULL;
     Delete(proxy_class_code);
@@ -943,7 +957,14 @@ public:
       }
     }
 
-    Printf(imclass_class_code, "  public final static native %s %s(", im_return_type, overloaded_name);
+    // Printf(imclass_class_code, "  public final static native %s %s(", im_return_type, overloaded_name);
+    Printf(imclass_class_code, "late final %s_%s = ptr_%s_%s.asFunction<%s Function(", 
+      module_class_name, overloaded_name,
+      module_class_name, overloaded_name, im_return_type
+      );
+    Printf(imclass_class_lookup_code, "late final ptr_%s_%s = _lookup<NativeFunction<%s Function(", 
+      module_class_name, overloaded_name, im_return_type
+      );
 
     num_arguments = emit_num_arguments(l);
 
@@ -979,8 +1000,11 @@ public:
       /* Add parameter to intermediary class method */
       if (gencomma) {
         Printf(imclass_class_code, ", ");
+        Printf(imclass_class_lookup_code, ", ");
       }
-      Printf(imclass_class_code, "%s %s", im_param_type, arg);
+      // Printf(imclass_class_code, "%s %s", im_param_type, arg);
+      Printf(imclass_class_code, "%s", im_param_type);
+      Printf(imclass_class_lookup_code, "%s", im_param_type);
 
       // Add parameter to C function
       if (i != 0) {
@@ -995,7 +1019,9 @@ public:
       if (!is_destructor) {
 	String *pgc_parameter = prematureGarbageCollectionPreventionParameter(pt, p);
 	if (pgc_parameter) {
-	  Printf(imclass_class_code, ", %s %s_", pgc_parameter, arg);
+	  // Printf(imclass_class_code, ", %s %s_", pgc_parameter, arg);
+    Printf(imclass_class_code, ", %s", pgc_parameter);
+    Printf(imclass_class_lookup_code, ", %s", pgc_parameter);
 	  Printf(f->def, ", jobject %s_", arg);
 	  Printf(f->code, "    (void)%s_;\n", arg);
 	}
@@ -1125,9 +1151,12 @@ public:
     }
 
     /* Finish C function and intermediary class function definitions */
-    Printf(imclass_class_code, ")");
-    generateThrowsClause(n, imclass_class_code);
-    Printf(imclass_class_code, ";\n");
+    // Printf(imclass_class_code, ")");
+    // generateThrowsClause(n, imclass_class_code);
+    // Printf(imclass_class_code, ";\n");
+
+    Printf(imclass_class_code, ")>();\n");
+    Printf(imclass_class_lookup_code, ")>>('%s_%s');\n", module_class_name, overloaded_name);
 
     Printf(f->def, ") {");
 
@@ -1744,6 +1773,7 @@ public:
 	  imclass_class_modifiers = Copy(strvalue);
 	} else if (Strcmp(code, "jniclasscode") == 0) {
 	  Printf(imclass_class_code, "%s\n", strvalue);
+    Printf(imclass_class_lookup_code, "%s\n", strvalue);
 	} else if (Strcmp(code, "jniclassimports") == 0) {
 	  Delete(imclass_imports);
 	  imclass_imports = Copy(strvalue);
@@ -1855,7 +1885,11 @@ public:
     String *jniname = makeValidJniName(upcast_method_name);
     String *wname = Swig_name_wrapper(jniname);
 
-    Printf(imclass_cppcasts_code, "  public final static native long %s(long jarg1);\n", upcast_method_name);
+    // Printf(imclass_cppcasts_code, "  public final static native long %s(long jarg1);\n", upcast_method_name);
+    Printf(imclass_cppcasts_code, "typedef Int T_%s_%s(Int jarg1);\ntypedef Int F_%s_%s(Int jarg1);\n", 
+      module_class_name, upcast_method_name,
+      module_class_name, upcast_method_name
+      );
 
     if (smart) {
       if (bsmart) {

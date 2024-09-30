@@ -56,8 +56,9 @@ typedef struct {
 %}
 
 %insert(runtime) {
+typedef unsigned long JNIEnv;
 static void SWIGUNUSED SWIG_DartThrowException(JNIEnv *jenv, SWIG_DartExceptionCodes code, const char *msg) {
-  jclass excep;
+  //jclass excep;
   static const SWIG_DartExceptions_t java_exceptions[] = {
     { SWIG_DartOutOfMemoryError, "java/lang/OutOfMemoryError" },
     { SWIG_DartIOException, "java/io/IOException" },
@@ -76,10 +77,10 @@ static void SWIGUNUSED SWIG_DartThrowException(JNIEnv *jenv, SWIG_DartExceptionC
   while (except_ptr->code != code && except_ptr->code)
     except_ptr++;
 
-  JCALL0(ExceptionClear, jenv);
-  excep = JCALL1(FindClass, jenv, except_ptr->java_exception);
-  if (excep)
-    JCALL2(ThrowNew, jenv, excep, msg);
+  //JCALL0(ExceptionClear, jenv);
+  //excep = JCALL1(FindClass, jenv, except_ptr->java_exception);
+  //if (excep)
+  //  JCALL2(ThrowNew, jenv, excep, msg);
 }
 }
 

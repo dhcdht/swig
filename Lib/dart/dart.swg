@@ -202,7 +202,7 @@ SWIGINTERN jint SWIG_dartIntFromSize_t(size_t size) {
 %typemap(jstype) SWIGTYPE [] "$dartclassname"
 
 %typemap(jni) SWIGTYPE * "unsigned long"
-%typemap(jtype) SWIGTYPE * "unsigned long"
+%typemap(jtype) SWIGTYPE * "Int"
 %typemap(jstype) SWIGTYPE * "$dartclassname"
 
 %typemap(jni) SWIGTYPE & "unsigned long"
