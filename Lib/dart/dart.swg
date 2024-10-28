@@ -1194,7 +1194,7 @@ Swig::LocalRefGuard $1_refguard(jenv, $input); }
 
 /* Typemaps used for the generation of proxy and type wrapper class code */
 %typemap(dartbase)             SWIGTYPE, SWIGTYPE *, SWIGTYPE &, SWIGTYPE &&, SWIGTYPE [], SWIGTYPE (CLASS::*) ""
-%typemap(dartclassmodifiers)   SWIGTYPE, SWIGTYPE *, SWIGTYPE &, SWIGTYPE &&, SWIGTYPE [], SWIGTYPE (CLASS::*) "public class"
+%typemap(dartclassmodifiers)   SWIGTYPE, SWIGTYPE *, SWIGTYPE &, SWIGTYPE &&, SWIGTYPE [], SWIGTYPE (CLASS::*) "class"
 %typemap(dartcode)             SWIGTYPE, SWIGTYPE *, SWIGTYPE &, SWIGTYPE &&, SWIGTYPE [], SWIGTYPE (CLASS::*) ""
 %typemap(dartimports)          SWIGTYPE, SWIGTYPE *, SWIGTYPE &, SWIGTYPE &&, SWIGTYPE [], SWIGTYPE (CLASS::*) ""
 %typemap(dartinterfaces)       SWIGTYPE, SWIGTYPE *, SWIGTYPE &, SWIGTYPE &&, SWIGTYPE [], SWIGTYPE (CLASS::*) ""
@@ -1207,23 +1207,23 @@ Swig::LocalRefGuard $1_refguard(jenv, $input); }
 %define SWIG_DARTBODY_PROXY(PTRCTOR_VISIBILITY, CPTR_VISIBILITY, TYPE...)
 // Base proxy classes
 %typemap(dartbody) TYPE %{
-  private transient long swigCPtr;
-  protected transient boolean swigCMemOwn;
+  late int swigCPtr;
+  late bool swigCMemOwn;
 
-  PTRCTOR_VISIBILITY $dartclassname(long cPtr, boolean cMemoryOwn) {
+  $dartclassname.n(int cPtr, bool cMemoryOwn) {
     swigCMemOwn = cMemoryOwn;
     swigCPtr = cPtr;
   }
 
-  CPTR_VISIBILITY static long getCPtr($dartclassname obj) {
+  CPTR_VISIBILITY static int getCPtr($dartclassname obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 
-  CPTR_VISIBILITY static long swigRelease($dartclassname obj) {
-    long ptr = 0;
+  CPTR_VISIBILITY static int swigRelease($dartclassname obj) {
+    int ptr = 0;
     if (obj != null) {
-      if (!obj.swigCMemOwn)
-        throw new RuntimeException("Cannot release ownership as memory is not owned");
+      //if (!obj.swigCMemOwn)
+      //  throw new RuntimeException("Cannot release ownership as memory is not owned");
       ptr = obj.swigCPtr;
       obj.swigCMemOwn = false;
       obj.delete();
@@ -1234,22 +1234,21 @@ Swig::LocalRefGuard $1_refguard(jenv, $input); }
 
 // Derived proxy classes
 %typemap(dartbody_derived) TYPE %{
-  private transient long swigCPtr;
+  late int swigCPtr;
 
-  PTRCTOR_VISIBILITY $dartclassname(long cPtr, boolean cMemoryOwn) {
-    super($imclassname.$dartclazznameSWIGUpcast(cPtr), cMemoryOwn);
+  $dartclassname.n(int cPtr, bool cMemoryOwn) : super.n(cPtr, cMemoryOwn) {
     swigCPtr = cPtr;
   }
 
-  CPTR_VISIBILITY static long getCPtr($dartclassname obj) {
+  static int getCPtr($dartclassname obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 
-  CPTR_VISIBILITY static long swigRelease($dartclassname obj) {
-    long ptr = 0;
+  static int swigRelease($dartclassname obj) {
+    int ptr = 0;
     if (obj != null) {
-      if (!obj.swigCMemOwn)
-        throw new RuntimeException("Cannot release ownership as memory is not owned");
+      //if (!obj.swigCMemOwn)
+      //  throw new RuntimeException("Cannot release ownership as memory is not owned");
       ptr = obj.swigCPtr;
       obj.swigCMemOwn = false;
       obj.delete();
@@ -1300,12 +1299,12 @@ Swig::LocalRefGuard $1_refguard(jenv, $input); }
 
 /* Set the default dartbody typemaps to use protected visibility.
    Use the macros to change to public if using multiple modules. */
-SWIG_DARTBODY_PROXY(protected, protected, SWIGTYPE)
-SWIG_DARTBODY_TYPEWRAPPER(protected, protected, protected, SWIGTYPE)
+SWIG_DARTBODY_PROXY(protected, , SWIGTYPE)
+SWIG_DARTBODY_TYPEWRAPPER(protected, , , SWIGTYPE)
 
 %typemap(dartfinalize) SWIGTYPE %{
-  @SuppressWarnings({"deprecation", "removal"})
-  protected void finalize() {
+  // @SuppressWarnings({"deprecation", "removal"})
+  void finalize() {
     delete();
   }
 %}
@@ -1333,7 +1332,7 @@ SWIG_DARTBODY_TYPEWRAPPER(protected, protected, protected, SWIGTYPE)
 
 %define SWIG_PROXY_CONSTRUCTOR(OWNERSHIP, WEAKREF, TYPENAME...)
 %typemap(dartconstruct,directorconnect="\n    $imclassname.$dartclazznamedirector_connect(this, swigCPtr, OWNERSHIP, WEAKREF);") TYPENAME {
-    this($imcall, OWNERSHIP);$directorconnect
+    $directorconnect
   }
 %enddef
 
@@ -1344,7 +1343,7 @@ SWIG_PROXY_CONSTRUCTOR(true, false, TYPENAME)
 // Set the default for SWIGTYPE: Dart owns the C/C++ object.
 SWIG_PROXY_CONSTRUCTOR(true, true, SWIGTYPE)
 
-%typemap(dartdestruct, methodname="delete", methodmodifiers="public synchronized", parameters="") SWIGTYPE {
+%typemap(dartdestruct, methodname="delete", methodmodifiers="", parameters="") SWIGTYPE {
     if (swigCPtr != 0) {
       if (swigCMemOwn) {
         swigCMemOwn = false;
@@ -1354,7 +1353,7 @@ SWIG_PROXY_CONSTRUCTOR(true, true, SWIGTYPE)
     }
   }
 
-%typemap(dartdestruct_derived, methodname="delete", methodmodifiers="public synchronized", parameters="") SWIGTYPE {
+%typemap(dartdestruct_derived, methodname="delete", methodmodifiers="", parameters="") SWIGTYPE {
     if (swigCPtr != 0) {
       if (swigCMemOwn) {
         swigCMemOwn = false;
@@ -1366,21 +1365,21 @@ SWIG_PROXY_CONSTRUCTOR(true, true, SWIGTYPE)
   }
 
 %typemap(directordisconnect, methodname="swigDirectorDisconnect") SWIGTYPE %{
-  protected void $methodname() {
+  void $methodname() {
     swigCMemOwn = false;
     $jnicall;
   }
 %}
 
 %typemap(directorowner_release, methodname="swigReleaseOwnership") SWIGTYPE %{
-  public void $methodname() {
+  void $methodname() {
     swigCMemOwn = false;
     $jnicall;
   }
 %}
 
 %typemap(directorowner_take, methodname="swigTakeOwnership") SWIGTYPE %{
-  public void $methodname() {
+  void $methodname() {
     swigCMemOwn = true;
     $jnicall;
   }
@@ -1396,8 +1395,8 @@ SWIG_PROXY_CONSTRUCTOR(true, true, SWIGTYPE)
 #define %cleardartexception         %feature("except","",throws="")
 #define %proxycode                  %insert("proxycode")
 
-%pragma(dart) jniclassclassmodifiers="public class"
-%pragma(dart) moduleclassmodifiers="public class"
+%pragma(dart) jniclassclassmodifiers="class"
+%pragma(dart) moduleclassmodifiers="class"
 
 /* 64-bit architecture specific typemaps */
 #if defined(SWIGWORDSIZE64)

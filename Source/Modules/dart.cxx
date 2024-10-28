@@ -104,8 +104,8 @@ public:
    * ----------------------------------------------------------------------------- */
 
    DART():empty_string(NewString("")),
-      public_string(NewString("public")),
-      protected_string(NewString("protected")),
+      public_string(NewString("")),
+      protected_string(NewString("")),
       swig_types_hash(NULL),
       f_begin(NULL),
       f_runtime(NULL),
@@ -1544,17 +1544,17 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
 	  // Wrap (non-anonymous) enum using the typesafe enum pattern
 	  if (Getattr(n, "enumvalue")) {
 	    String *value = enumValue(n);
-	    Printf(enum_code, "  %s final static %s %s = new %s(\"%s\", %s);\n", methodmods, return_type, symname, return_type, symname, value);
+	    Printf(enum_code, "  %sfinal static %s %s = new %s(\"%s\", %s);\n", methodmods, return_type, symname, return_type, symname, value);
 	    Delete(value);
 	  } else {
-	    Printf(enum_code, "  %s final static %s %s = new %s(\"%s\");\n", methodmods, return_type, symname, return_type, symname);
+	    Printf(enum_code, "  %sfinal static %s %s = new %s(\"%s\");\n", methodmods, return_type, symname, return_type, symname);
 	  }
 	} else {
 	  // Simple integer constants
 	  // Note these are always generated for anonymous enums, no matter what enum_feature is specified
 	  // Code generated is the same for SimpleEnum and TypeunsafeEnum -> the class it is generated into is determined later
 	  String *value = enumValue(n);
-	  Printf(enum_code, "  %s final static %s %s = %s;\n", methodmods, return_type, symname, value);
+	  Printf(enum_code, "  %sfinal static %s %s = %s;\n", methodmods, return_type, symname, value);
 	  Delete(value);
 	}
 	Delete(return_type);
@@ -1660,7 +1660,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
     const String *methodmods = Getattr(n, "feature:dart:methodmodifiers");
     methodmods = methodmods ? methodmods : (is_public(n) ? public_string : protected_string);
 
-    Printf(constants_code, "  %s final static %s %s = ", methodmods, return_type, itemname);
+    Printf(constants_code, "  %sfinal static %s %s = ", methodmods, return_type, itemname);
 
     // Check for the %dartconstvalue feature
     String *value = Getattr(n, "feature:dart:constvalue");
@@ -2032,6 +2032,11 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
     // Start writing the proxy class
     if (!has_outerclass) // Import statements
       Printv(proxy_class_def, typemapLookup(n, "dartimports", typemap_lookup_type, WARN_NONE),"\n", NIL);
+
+    if (*Char(wanted_base)) {
+      Printf(proxy_class_def, "import '%s.dart';\n", wanted_base);
+    }
+    Printf(proxy_class_def, "import '%sJNI.dart';\n\n", module_class_name);
 
   //   // Translate and write dartdoc comment if flagged
   //   if (doxygen && doxygenTranslator->hasDocumentation(n)) {
@@ -2539,7 +2544,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
     /* Start generating the proxy function */
     const String *methodmods = Getattr(n, "feature:dart:methodmodifiers");
     methodmods = methodmods ? methodmods : (is_public(n) ? public_string : protected_string);
-    Printf(function_code, "  %s ", methodmods);
+    Printf(function_code, "  %s", methodmods);
     if (static_flag)
       Printf(function_code, "static ");
     Printf(function_code, "%s %s(", return_type, proxy_function_name);
@@ -2781,10 +2786,10 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
 	// Delete(doxygen_comments);
   //     }
 
-      Printf(function_code, "  %s %s(", methodmods, proxy_class_name);
+      Printf(function_code, "  %s%s(", methodmods, proxy_class_name);
       Printf(helper_code, "  static private %s SwigConstruct%s(", im_return_type, proxy_class_name);
 
-      Printv(imcall, full_imclass_name, ".", mangled_overname, "(", NIL);
+      Printv(imcall, full_imclass_name, "_", mangled_overname, "(", NIL);
 
       /* Attach the non-standard typemaps to the parameter list */
       Swig_typemap_attach_parms("in", l, NULL);
@@ -2883,7 +2888,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
 
       Printf(imcall, ")");
 
-      Printf(function_code, ")");
+      Printf(function_code, ") : super.n($imcall, true)");
       Printf(helper_code, ")");
       generateThrowsClause(n, function_code);
 
@@ -2893,21 +2898,21 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
       String *construct_tm = Copy(typemapLookup(n, "dartconstruct", typemap_lookup_type,
 						WARN_DART_TYPEMAP_DARTCONSTRUCT_UNDEF, attributes));
       if (construct_tm) {
-	if (!feature_director) {
-	  Replaceall(construct_tm, "$directorconnect", "");
-	} else {
-	  String *connect_attr = Getattr(attributes, "tmap:dartconstruct:directorconnect");
+        if (!feature_director) {
+          Replaceall(construct_tm, "$directorconnect", "");
+        } else {
+          String *connect_attr = Getattr(attributes, "tmap:dartconstruct:directorconnect");
 
-	  if (connect_attr) {
-	    Replaceall(construct_tm, "$directorconnect", connect_attr);
-	  } else {
-	    Swig_warning(WARN_DART_NO_DIRECTORCONNECT_ATTR, input_file, line_number, "\"directorconnect\" attribute missing in %s \"dartconstruct\" typemap.\n",
-			 Getattr(n, "name"));
-	    Replaceall(construct_tm, "$directorconnect", "");
-	  }
-	}
+          if (connect_attr) {
+            Replaceall(construct_tm, "$directorconnect", connect_attr);
+          } else {
+            Swig_warning(WARN_DART_NO_DIRECTORCONNECT_ATTR, input_file, line_number, "\"directorconnect\" attribute missing in %s \"dartconstruct\" typemap.\n",
+            Getattr(n, "name"));
+            Replaceall(construct_tm, "$directorconnect", "");
+          }
+        }
 
-	Printv(function_code, " ", construct_tm, "\n", NIL);
+      	Printv(function_code, " ", construct_tm, "\n", NIL);
       }
 
       bool is_pre_code = Len(pre_code) > 0;
@@ -2958,7 +2963,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
     String *symname = Getattr(n, "sym:name");
 
     if (proxy_flag) {
-      Printv(destructor_call, full_imclass_name, ".", Swig_name_destroy(getNSpace(), symname), "(swigCPtr)", NIL);
+      Printv(destructor_call, full_imclass_name, "_", Swig_name_destroy(getNSpace(), symname), "(swigCPtr)", NIL);
       generateThrowsClause(n, destructor_throws_clause);
       const String *methodmods = Getattr(n, "feature:dart:methodmodifiers");
       if (methodmods)
@@ -3091,7 +3096,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
     /* Start generating the function */
     const String *methodmods = Getattr(n, "feature:dart:methodmodifiers");
     methodmods = methodmods ? methodmods : (is_public(n) ? public_string : protected_string);
-    Printf(function_code, "  %s static %s %s(", methodmods, return_type, func_name);
+    Printf(function_code, "  %sstatic %s %s(", methodmods, return_type, func_name);
     Printv(imcall, imclass_name, ".", overloaded_name, "(", NIL);
 
     /* Get number of required and total arguments */
