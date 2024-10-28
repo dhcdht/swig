@@ -1209,10 +1209,15 @@ Swig::LocalRefGuard $1_refguard(jenv, $input); }
 %typemap(dartbody) TYPE %{
   late int swigCPtr;
   late bool swigCMemOwn;
+  final Finalizer<$dartclassname> _finalizer = Finalizer<$dartclassname>(_cleanup);
 
   $dartclassname.n(int cPtr, bool cMemoryOwn) {
     swigCMemOwn = cMemoryOwn;
     swigCPtr = cPtr;
+
+    if (swigCMemOwn) {
+      _finalizer.attach(this, this);
+    }
   }
 
   CPTR_VISIBILITY static int getCPtr($dartclassname obj) {
@@ -1229,6 +1234,10 @@ Swig::LocalRefGuard $1_refguard(jenv, $input); }
       obj.delete();
     }
     return ptr;
+  }
+
+  static void _cleanup($dartclassname obj) {
+    obj.delete();
   }
 %}
 
@@ -1304,9 +1313,9 @@ SWIG_DARTBODY_TYPEWRAPPER(protected, , , SWIGTYPE)
 
 %typemap(dartfinalize) SWIGTYPE %{
   // @SuppressWarnings({"deprecation", "removal"})
-  void finalize() {
-    delete();
-  }
+  //void finalize() {
+  //  delete();
+  //}
 %}
 
 /*
