@@ -1588,7 +1588,7 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     Printf(protocol_decl, "@required\n");
     if (block_flag) {
         Printv(block_decl, objcrettype, NIL);
-        Printf(block_decl, "(^%s)(", name);
+        Printf(block_decl, "(^%sBlock)(", name);
     }
 
     // Begin the first line of the function declaration
@@ -1605,7 +1605,7 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     Printv(imcall, imfunctionname, "(", NIL);
     Printv(protocol_defn, "return [_delegate ", proxyfunctionname, NIL);
     if (block_flag) {
-        Printf(block_call, "return self.%s(", proxyfunctionname);
+        Printf(block_call, "return self.%sBlock(", proxyfunctionname);
     }
 
     // Attach the non-standard typemaps to the parameter list
@@ -1739,7 +1739,7 @@ void OBJECTIVEC::emitProxyClassFunction(Node *n)
     substituteClassname(tm, type);
 
     if (block_flag) {
-        Printf(protocol_impl, "if (self.%s) {\n", proxyfunctionname);
+        Printf(protocol_impl, "if (self.%sBlock) {\n", proxyfunctionname);
         Printf(protocol_impl, "\t\t%s", block_call);
         Printf(protocol_impl, "\t} else {\n");
         Printf(protocol_impl, "\t\t%s\n", protocol_defn);
