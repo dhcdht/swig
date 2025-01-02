@@ -895,6 +895,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
     int i;
     String *c_return_type = NewString("");
     String *im_return_type = NewString("");
+    String *im_return_stype = NewString("");
     String *cleanup = NewString("");
     String *outarg = NewString("");
     String *body = NewString("");
@@ -942,6 +943,11 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
     } else {
       Swig_warning(WARN_DART_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jtype typemap defined for %s\n", SwigType_str(t, 0));
     }
+    if ((tm = Swig_typemap_lookup("jstype", n, "", 0))) {
+      Printf(im_return_stype, "%s", tm);
+    } else {
+      Swig_warning(WARN_DART_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(t, 0));
+    }
 
     is_void_return = (Cmp(c_return_type, "void") == 0);
     if (!is_void_return)
@@ -977,10 +983,9 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
     }
 
     // Printf(imclass_class_code, "  public final static native %s %s(", im_return_type, overloaded_name);
-    String *im_return_type_lower = Swig_string_lower(im_return_type);
     Printf(imclass_class_code, "late final %s_%s = ptr_%s_%s.asFunction<%s Function(", 
       module_class_name, overloaded_name,
-      module_class_name, overloaded_name, im_return_type_lower
+      module_class_name, overloaded_name, im_return_stype
       );
     Printf(imclass_class_lookup_code, "late final ptr_%s_%s = _dylib.lookup<NativeFunction<%s Function(", 
       module_class_name, overloaded_name, im_return_type
@@ -998,6 +1003,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
       SwigType *pt = Getattr(p, "type");
       String *ln = Getattr(p, "lname");
       String *im_param_type = NewString("");
+      String *im_param_stype = NewString("");
       String *c_param_type = NewString("");
       String *arg = NewString("");
 
@@ -1016,6 +1022,11 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
       } else {
 	Swig_warning(WARN_DART_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jtype typemap defined for %s\n", SwigType_str(pt, 0));
       }
+      if ((tm = Getattr(p, "tmap:jstype"))) {
+	Printv(im_param_stype, tm, NIL);
+      } else {
+	Swig_warning(WARN_DART_TYPEMAP_JTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(pt, 0));
+      }
 
       /* Add parameter to intermediary class method */
       if (gencomma) {
@@ -1023,8 +1034,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
         Printf(imclass_class_lookup_code, ", ");
       }
       // Printf(imclass_class_code, "%s %s", im_param_type, arg);
-      String *im_param_type_lower = Swig_string_lower(im_param_type);
-      Printf(imclass_class_code, "%s", im_param_type_lower);
+      Printf(imclass_class_code, "%s", im_param_stype);
       Printf(imclass_class_lookup_code, "%s", im_param_type);
 
       // Add parameter to C function
@@ -2786,7 +2796,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
 	// Delete(doxygen_comments);
   //     }
 
-      Printf(function_code, "  %s%s(", methodmods, proxy_class_name);
+      Printf(function_code, "  factory %s%s(", methodmods, proxy_class_name);
       Printf(helper_code, "  static private %s SwigConstruct%s(", im_return_type, proxy_class_name);
 
       Printv(imcall, full_imclass_name, "_", mangled_overname, "(", NIL);
@@ -2888,7 +2898,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
 
       Printf(imcall, ")");
 
-      Printf(function_code, ") : super.n($imcall, true)");
+      Printf(function_code, ")");
       Printf(helper_code, ")");
       generateThrowsClause(n, function_code);
 

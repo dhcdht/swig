@@ -91,7 +91,7 @@ SWIGINTERN jint SWIG_dartIntFromSize_t(size_t size) {
 %typemap(jtype) unsigned long,      const unsigned long &      "long"
 %typemap(jtype) long long,          const long long &          "long"
 %typemap(jtype) unsigned long long, const unsigned long long & "dart.math.BigInteger"
-%typemap(jtype) float,              const float &              "float"
+%typemap(jtype) float,              const float &              "Float"
 %typemap(jtype) double,             const double &             "Double"
 %typemap(jtype) void                                           "Void"
 
@@ -107,7 +107,7 @@ SWIGINTERN jint SWIG_dartIntFromSize_t(size_t size) {
 %typemap(jstype) unsigned long,      const unsigned long &      "long"
 %typemap(jstype) long long,          const long long &          "long"
 %typemap(jstype) unsigned long long, const unsigned long long & "dart.math.BigInteger"
-%typemap(jstype) float,              const float &              "float"
+%typemap(jstype) float,              const float &              "double"
 %typemap(jstype) double,             const double &             "double"
 %typemap(jstype) void                                           "void"
 
@@ -201,9 +201,9 @@ SWIGINTERN jint SWIG_dartIntFromSize_t(size_t size) {
 %typemap(jtype) SWIGTYPE [] "unsigned long"
 %typemap(jstype) SWIGTYPE [] "$dartclassname"
 
-%typemap(jni) SWIGTYPE * "unsigned long"
-%typemap(jtype) SWIGTYPE * "Int"
-%typemap(jstype) SWIGTYPE * "$dartclassname"
+%typemap(jni) SWIGTYPE * "int64_t"
+%typemap(jtype) SWIGTYPE * "Int64"
+%typemap(jstype) SWIGTYPE * "int"
 
 %typemap(jni) SWIGTYPE & "unsigned long"
 %typemap(jtype) SWIGTYPE & "unsigned long"
@@ -1341,7 +1341,8 @@ SWIG_DARTBODY_TYPEWRAPPER(protected, , , SWIGTYPE)
 
 %define SWIG_PROXY_CONSTRUCTOR(OWNERSHIP, WEAKREF, TYPENAME...)
 %typemap(dartconstruct,directorconnect="\n    $imclassname.$dartclazznamedirector_connect(this, swigCPtr, OWNERSHIP, WEAKREF);") TYPENAME {
-    $directorconnect
+    //$directorconnect
+    return $dartclassname.n($imcall, OWNERSHIP);
   }
 %enddef
 
