@@ -7,7 +7,7 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug",
+            "name": "RunSwig",
             "program": "${workspaceFolder}/build/swig",
             "args": [
                 "-c++",
@@ -15,6 +15,18 @@
                 "test/example.i",
             ],
             "cwd": "${workspaceFolder}/build"
-        }
+        },
+        {
+            "name": "RunDartDemo",
+            "request": "launch",
+            "type": "dart",
+            "program": "${workspaceFolder}/build/test_demo/example/lib/main.dart",
+        },
+        {
+            "type": "lldb",
+            "request": "attach",
+            "name": "AttachCpp",
+            "pid": "${command:pickMyProcess}" // use ${command:pickProcess} to pick other users' processes
+        },
     ]
 }
