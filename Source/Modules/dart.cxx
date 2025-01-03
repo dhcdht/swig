@@ -2522,10 +2522,11 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
     Swig_typemap_attach_parms("in", l, NULL);
     Swig_typemap_attach_parms("jtype", l, NULL);
     Swig_typemap_attach_parms("jstype", l, NULL);
+    Swig_typemap_attach_parms("jboxtype", l, NULL);
     Swig_typemap_attach_parms("dartin", l, NULL);
 
     /* Get return types */
-    if ((tm = Swig_typemap_lookup("jstype", n, "", 0))) {
+    if ((tm = Swig_typemap_lookup("jboxtype", n, "", 0))) {
       // Note that in the case of polymorphic (covariant) return types, the method's return type is changed to be the base of the C++ return type
       SwigType *covariant = Getattr(n, "covariant");
       substituteClassname(covariant ? covariant : t, tm);
@@ -2574,7 +2575,7 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
       SwigType_add_pointer(this_type);
       Parm *this_parm = NewParm(this_type, name, n);
       Swig_typemap_attach_parms("jtype", this_parm, NULL);
-      Swig_typemap_attach_parms("jstype", this_parm, NULL);
+      Swig_typemap_attach_parms("jboxtype", this_parm, NULL);
 
       if (prematureGarbageCollectionPreventionParameter(this_type, this_parm))
 	Printf(imcall, ", this");
@@ -2609,11 +2610,11 @@ void $imclassname_setDylib(DynamicLibrary dylib) {\n\
 	String *param_type = NewString("");
 
 	/* Get the Dart parameter type */
-	if ((tm = Getattr(p, "tmap:jstype"))) {
+	if ((tm = Getattr(p, "tmap:jboxtype"))) {
 	  substituteClassname(pt, tm);
 	  Printf(param_type, "%s", tm);
 	} else {
-	  Swig_warning(WARN_DART_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jstype typemap defined for %s\n", SwigType_str(pt, 0));
+	  Swig_warning(WARN_DART_TYPEMAP_JSTYPE_UNDEF, input_file, line_number, "No jboxtype typemap defined for %s\n", SwigType_str(pt, 0));
 	}
 
 	if (gencomma)

@@ -187,6 +187,10 @@
                   SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > &,
                   SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *,
                   SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& "int"
+%typemap (jboxtype) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >,
+                    SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > &,
+                    SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *,
+                    SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& "$typemap(jstype, TYPE)?"
 
 %typemap(dartin) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >,
                  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > &,
@@ -194,8 +198,8 @@
                  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& "$typemap(jstype, TYPE).getCPtr($dartinput)"
 
 %typemap(dartout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > {
-    long cPtr = $jnicall;
-    return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
+    int cPtr = $jnicall;
+    return (cPtr == 0) ? null : $typemap(jboxtype, TYPE).n(cPtr, true);
   }
 %typemap(dartout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > & {
     long cPtr = $jnicall;

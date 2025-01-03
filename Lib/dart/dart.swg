@@ -117,14 +117,14 @@ SWIGINTERN jint SWIG_dartIntFromSize_t(size_t size) {
 %typemap(jboxtype) unsigned char,      const unsigned char &      "Short"
 %typemap(jboxtype) short,              const short &              "Short"
 %typemap(jboxtype) unsigned short,     const unsigned short &     "Integer"
-%typemap(jboxtype) int,                const int &                "Integer"
+%typemap(jboxtype) int,                const int &                "int"
 %typemap(jboxtype) unsigned int,       const unsigned int &       "Long"
 %typemap(jboxtype) long,               const long &               "Integer"
 %typemap(jboxtype) unsigned long,      const unsigned long &      "Long"
 %typemap(jboxtype) long long,          const long long &          "Long"
 %typemap(jboxtype) unsigned long long, const unsigned long long & "dart.math.BigInteger"
-%typemap(jboxtype) float,              const float &              "Float"
-%typemap(jboxtype) double,             const double &             "Double"
+%typemap(jboxtype) float,              const float &              "double"
+%typemap(jboxtype) double,             const double &             "double"
 
 %typemap(jni) char *, char *&, char[ANY], char[]               "jstring"
 %typemap(jtype) char *, char *&, char[ANY], char[]               "String"
@@ -1220,7 +1220,7 @@ Swig::LocalRefGuard $1_refguard(jenv, $input); }
     }
   }
 
-  CPTR_VISIBILITY static int getCPtr($dartclassname obj) {
+  CPTR_VISIBILITY static int getCPtr($dartclassname? obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 
