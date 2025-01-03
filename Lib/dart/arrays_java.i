@@ -167,8 +167,8 @@ JAVA_ARRAYS_IMPL(double, jdouble, Double, Double)     /* double[] */
 %{ free($1); %}
 #endif
 
-%typemap(javain) CTYPE[ANY], CTYPE[] "$javainput"
-%typemap(javaout) CTYPE[ANY], CTYPE[] {
+%typemap(dartin) CTYPE[ANY], CTYPE[] "$dartinput"
+%typemap(dartout) CTYPE[ANY], CTYPE[] {
     return $jnicall;
   }
 
@@ -243,11 +243,11 @@ JAVA_ARRAYS_TYPEMAPS(double, double, jdouble, Double, "[D")     /* double[ANY] *
 
 %typemap(jni) ARRAYSOFCLASSES[ANY], ARRAYSOFCLASSES[] "jlongArray"
 %typemap(jtype) ARRAYSOFCLASSES[ANY], ARRAYSOFCLASSES[] "long[]"
-%typemap(jstype) ARRAYSOFCLASSES[ANY], ARRAYSOFCLASSES[] "$javaclassname[]"
+%typemap(jstype) ARRAYSOFCLASSES[ANY], ARRAYSOFCLASSES[] "$dartclassname[]"
 
-%typemap(javain) ARRAYSOFCLASSES[ANY], ARRAYSOFCLASSES[] "$javaclassname.cArrayUnwrap($javainput)"
-%typemap(javaout) ARRAYSOFCLASSES[ANY], ARRAYSOFCLASSES[] {
-    return $javaclassname.cArrayWrap($jnicall, $owner);
+%typemap(dartin) ARRAYSOFCLASSES[ANY], ARRAYSOFCLASSES[] "$dartclassname.cArrayUnwrap($dartinput)"
+%typemap(dartout) ARRAYSOFCLASSES[ANY], ARRAYSOFCLASSES[] {
+    return $dartclassname.cArrayWrap($jnicall, $owner);
   }
 
 %typemap(in) ARRAYSOFCLASSES[] (jlong *jarr, jsize sz)
@@ -345,17 +345,17 @@ JAVA_ARRAYS_TYPEMAPS(double, double, jdouble, Double, "[D")     /* double[ANY] *
  * JNI class (long[]) and type used in proxy class ( ARRAYSOFCLASSES[] ) */
 %extend ARRAYSOFCLASSES {
 %proxycode %{
-  protected static long[] cArrayUnwrap($javaclassname[] arrayWrapper) {
+  protected static long[] cArrayUnwrap($dartclassname[] arrayWrapper) {
       long[] cArray = new long[arrayWrapper.length];
       for (int i=0; i<arrayWrapper.length; i++)
-        cArray[i] = $javaclassname.getCPtr(arrayWrapper[i]);
+        cArray[i] = $dartclassname.getCPtr(arrayWrapper[i]);
       return cArray;
   }
 
-  protected static $javaclassname[] cArrayWrap(long[] cArray, boolean cMemoryOwn) {
-    $javaclassname[] arrayWrapper = new $javaclassname[cArray.length];
+  protected static $dartclassname[] cArrayWrap(long[] cArray, boolean cMemoryOwn) {
+    $dartclassname[] arrayWrapper = new $dartclassname[cArray.length];
     for (int i=0; i<cArray.length; i++)
-      arrayWrapper[i] = new $javaclassname(cArray[i], cMemoryOwn);
+      arrayWrapper[i] = new $dartclassname(cArray[i], cMemoryOwn);
     return arrayWrapper;
   }
 %}
@@ -371,8 +371,8 @@ JAVA_ARRAYS_TYPEMAPS(double, double, jdouble, Double, "[D")     /* double[ANY] *
 %typemap(jtype) ARRAYSOFENUMS[ANY], ARRAYSOFENUMS[] "int[]"
 %typemap(jstype) ARRAYSOFENUMS[ANY], ARRAYSOFENUMS[] "int[]"
 
-%typemap(javain) ARRAYSOFENUMS[ANY], ARRAYSOFENUMS[] "$javainput"
-%typemap(javaout) ARRAYSOFENUMS[ANY], ARRAYSOFENUMS[] {
+%typemap(dartin) ARRAYSOFENUMS[ANY], ARRAYSOFENUMS[] "$dartinput"
+%typemap(dartout) ARRAYSOFENUMS[ANY], ARRAYSOFENUMS[] {
     return $jnicall;
   }
 

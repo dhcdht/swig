@@ -25,9 +25,9 @@ SWIGINTERN jint SWIG_VectorSize(size_t size) {
 
 %define SWIG_STD_VECTOR_MINIMUM_INTERNAL(CTYPE, CONST_REFERENCE)
 %typemap(javabase) std::vector< CTYPE > "java.util.AbstractList<$typemap(jboxtype, CTYPE)>"
-%typemap(javainterfaces) std::vector< CTYPE > "java.util.RandomAccess"
+%typemap(dartinterfaces) std::vector< CTYPE > "java.util.RandomAccess"
 %proxycode %{
-  public $javaclassname($typemap(jstype, CTYPE)[] initialElements) {
+  public $dartclassname($typemap(jstype, CTYPE)[] initialElements) {
     this();
     reserve(initialElements.length);
 
@@ -36,7 +36,7 @@ SWIGINTERN jint SWIG_VectorSize(size_t size) {
     }
   }
 
-  public $javaclassname(Iterable<$typemap(jboxtype, CTYPE)> initialElements) {
+  public $dartclassname(Iterable<$typemap(jboxtype, CTYPE)> initialElements) {
     this();
     for ($typemap(jstype, CTYPE) element : initialElements) {
       add(element);

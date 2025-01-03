@@ -67,9 +67,9 @@ class string_view;
 %typemap(out) string_view
 %{ $result = jenv->NewStringUTF(std::string($1).c_str()); %}
 
-%typemap(javain) string_view "$javainput"
+%typemap(dartin) string_view "$dartinput"
 
-%typemap(javaout) string_view {
+%typemap(dartout) string_view {
     return $jnicall;
   }
 
@@ -123,9 +123,9 @@ class string_view;
 %typemap(out) const string_view &
 %{ $result = jenv->NewStringUTF(std::string(*$1).c_str()); %}
 
-%typemap(javain) const string_view & "$javainput"
+%typemap(dartin) const string_view & "$dartinput"
 
-%typemap(javaout) const string_view & {
+%typemap(dartout) const string_view & {
     return $jnicall;
   }
 

@@ -81,8 +81,8 @@
   }
 }
 
-%typemap(javain) char **STRING_ARRAY "$javainput"
-%typemap(javaout) char **STRING_ARRAY {
+%typemap(dartin) char **STRING_ARRAY "$dartinput"
+%typemap(dartout) char **STRING_ARRAY {
     return $jnicall;
   }
 
@@ -103,7 +103,7 @@
 %typemap(jni) char **STRING_OUT "jobjectArray"
 %typemap(jtype) char **STRING_OUT "String[]"
 %typemap(jstype) char **STRING_OUT "String[]"
-%typemap(javain) char **STRING_OUT "$javainput"
+%typemap(dartin) char **STRING_OUT "$dartinput"
 
 %typemap(in) char **STRING_OUT($*1_ltype temp) {
   if (!$input) {
@@ -150,7 +150,7 @@
   JCALL3(ReleaseByteArrayElements, jenv, $input, (jbyte *) $1, 0); 
 }
 
-%typemap(javain) char *BYTE "$javainput"
+%typemap(dartin) char *BYTE "$dartinput"
 
 /* Prevent default freearg typemap from being used */
 %typemap(freearg) char *BYTE ""
@@ -173,8 +173,8 @@
 %typemap(jtype) unsigned char *NIOBUFFER "java.nio.ByteBuffer"  
 %typemap(jstype) unsigned char *NIOBUFFER "java.nio.ByteBuffer"  
 %typemap(javain,
-  pre="  assert $javainput.isDirect() : \"Buffer must be allocated direct.\";") unsigned char *NIOBUFFER "$javainput"
-%typemap(javaout) unsigned char *NIOBUFFER {  
+  pre="  assert $dartinput.isDirect() : \"Buffer must be allocated direct.\";") unsigned char *NIOBUFFER "$dartinput"
+%typemap(dartout) unsigned char *NIOBUFFER {  
   return $jnicall;  
 }  
 %typemap(in) unsigned char *NIOBUFFER {  

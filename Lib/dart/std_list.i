@@ -39,7 +39,7 @@ namespace std {
 
 %typemap(javabase) std::list<T> "java.util.AbstractSequentialList<$typemap(jboxtype, T)>"
 %proxycode %{
-  public $javaclassname(java.util.Collection c) {
+  public $dartclassname(java.util.Collection c) {
     this();
     java.util.ListIterator<$typemap(jboxtype, T)> it = listIterator(0);
     // Special case the "copy constructor" here to avoid lots of cross-language calls
@@ -63,16 +63,16 @@ namespace std {
       private Iterator last;
 
       private java.util.ListIterator<$typemap(jboxtype, T)> init(int index) {
-        if (index < 0 || index > $javaclassname.this.size())
+        if (index < 0 || index > $dartclassname.this.size())
           throw new IndexOutOfBoundsException("Index: " + index);
-        pos = $javaclassname.this.begin();
+        pos = $dartclassname.this.begin();
 	pos = pos.advance_unchecked(index);
         return this;
       }
 
       public void add($typemap(jboxtype, T) v) {
         // Technically we can invalidate last here, but this makes more sense
-        last = $javaclassname.this.insert(pos, v);
+        last = $dartclassname.this.insert(pos, v);
       }
 
       public void set($typemap(jboxtype, T) v) {
@@ -86,16 +86,16 @@ namespace std {
         if (null == last) {
           throw new IllegalStateException();
         }
-        $javaclassname.this.remove(last);
+        $dartclassname.this.remove(last);
         last = null;
       }
 
       public int previousIndex() {
-        return $javaclassname.this.doPreviousIndex(pos);
+        return $dartclassname.this.doPreviousIndex(pos);
       }
 
       public int nextIndex() {
-        return $javaclassname.this.doNextIndex(pos);
+        return $dartclassname.this.doNextIndex(pos);
       }
 
       public $typemap(jboxtype, T) previous() {
@@ -122,7 +122,7 @@ namespace std {
       }
 
       public boolean hasNext() {
-        return $javaclassname.this.doHasNext(pos);
+        return $dartclassname.this.doHasNext(pos);
       }
     }.init(index);
   }
@@ -144,7 +144,7 @@ namespace std {
      * interface and give "natural" semantics to Java users of the C++ iterator)
      */
     //%typemap(javaclassmodifiers) iterator "public class"
-    //%typemap(javainterfaces) iterator "java.util.ListIterator<$typemap(jboxtype, T)>"
+    //%typemap(dartinterfaces) iterator "java.util.ListIterator<$typemap(jboxtype, T)>"
 
     struct iterator {
       %extend {

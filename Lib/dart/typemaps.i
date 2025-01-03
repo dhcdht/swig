@@ -62,7 +62,7 @@ There are no char *INPUT typemaps, however you can apply the signed char * typem
 %typemap(jni) TYPE *INPUT, TYPE &INPUT "JNITYPE"
 %typemap(jtype) TYPE *INPUT, TYPE &INPUT "JTYPE"
 %typemap(jstype) TYPE *INPUT, TYPE &INPUT "JTYPE"
-%typemap(javain) TYPE *INPUT, TYPE &INPUT "$javainput"
+%typemap(dartin) TYPE *INPUT, TYPE &INPUT "$dartinput"
 
 %typemap(in) TYPE *INPUT, TYPE &INPUT
 %{ $1 = ($1_ltype)&$input; %}
@@ -186,7 +186,7 @@ There are no char *OUTPUT typemaps, however you can apply the signed char * type
 %typemap(jni) TYPE *OUTPUT, TYPE &OUTPUT %{JNITYPE##Array%}
 %typemap(jtype) TYPE *OUTPUT, TYPE &OUTPUT "JTYPE[]"
 %typemap(jstype) TYPE *OUTPUT, TYPE &OUTPUT "JTYPE[]"
-%typemap(javain) TYPE *OUTPUT, TYPE &OUTPUT "$javainput"
+%typemap(dartin) TYPE *OUTPUT, TYPE &OUTPUT "$dartinput"
 %typemap(javadirectorin) TYPE *OUTPUT, TYPE &OUTPUT "$jniinput"
 %typemap(javadirectorout) TYPE *OUTPUT, TYPE &OUTPUT "$javacall"
 
@@ -377,7 +377,7 @@ There are no char *INOUT typemaps, however you can apply the signed char * typem
 %typemap(jni) TYPE *INOUT, TYPE &INOUT %{JNITYPE##Array%}
 %typemap(jtype) TYPE *INOUT, TYPE &INOUT "JTYPE[]"
 %typemap(jstype) TYPE *INOUT, TYPE &INOUT "JTYPE[]"
-%typemap(javain) TYPE *INOUT, TYPE &INOUT "$javainput"
+%typemap(dartin) TYPE *INOUT, TYPE &INOUT "$dartinput"
 %typemap(javadirectorin) TYPE *INOUT, TYPE &INOUT "$jniinput"
 %typemap(javadirectorout) TYPE *INOUT, TYPE &INOUT "$javacall"
 

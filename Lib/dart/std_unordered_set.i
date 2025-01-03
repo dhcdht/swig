@@ -48,7 +48,7 @@ class unordered_set {
 
 %typemap(javabase) std::unordered_set<Key> "java.util.AbstractSet<$typemap(jboxtype, Key)>"
 %proxycode %{
-  public $javaclassname(java.util.Collection<? extends $typemap(jboxtype, Key)> collection) {
+  public $dartclassname(java.util.Collection<? extends $typemap(jboxtype, Key)> collection) {
     this();
     addAll(collection);
   }
@@ -72,8 +72,8 @@ class unordered_set {
       private Iterator end;
 
       private java.util.Iterator<$typemap(jboxtype, Key)> init() {
-        curr = $javaclassname.this.begin();
-        end = $javaclassname.this.end();
+        curr = $dartclassname.this.begin();
+        end = $dartclassname.this.end();
         return this;
       }
 

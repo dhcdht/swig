@@ -18,7 +18,7 @@
 %{ auto_temp = *(TYPE **)&$input;
   $1.reset(auto_temp); %}
 
-%typemap(javain) std::auto_ptr< TYPE > "$typemap(jstype, TYPE).swigRelease($javainput)"
+%typemap(dartin) std::auto_ptr< TYPE > "$typemap(jstype, TYPE).swigRelease($dartinput)"
 
 %typemap (out) std::auto_ptr< TYPE > %{
   jlong lpp = 0;
@@ -26,7 +26,7 @@
   $result = lpp;
 %}
 
-%typemap(javaout) std::auto_ptr< TYPE > {
+%typemap(dartout) std::auto_ptr< TYPE > {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }

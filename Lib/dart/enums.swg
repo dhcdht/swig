@@ -10,7 +10,7 @@
 // const enum SWIGTYPE & typemaps
 %typemap(jni) const enum SWIGTYPE & "jint"
 %typemap(jtype) const enum SWIGTYPE & "int"
-%typemap(jstype) const enum SWIGTYPE & "$*javaclassname"
+%typemap(jstype) const enum SWIGTYPE & "$*dartclassname"
 
 %typemap(in) const enum SWIGTYPE & ($*1_ltype temp)
 %{ temp = ($*1_ltype)$input; 
@@ -20,8 +20,8 @@
 %typemap(directorout,warning=SWIGWARN_TYPEMAP_THREAD_UNSAFE_MSG) const enum SWIGTYPE &
 %{ static $*1_ltype temp = ($*1_ltype)$input; 
    $result = &temp; %}
-%typemap(directorin, descriptor="L$packagepath/$*javaclassname;") const enum SWIGTYPE & "$input = (jint)$1;"
-%typemap(javadirectorin) const enum SWIGTYPE & "$*javaclassname.swigToEnum($jniinput)"
+%typemap(directorin, descriptor="L$packagepath/$*dartclassname;") const enum SWIGTYPE & "$input = (jint)$1;"
+%typemap(javadirectorin) const enum SWIGTYPE & "$*dartclassname.swigToEnum($jniinput)"
 %typemap(javadirectorout) const enum SWIGTYPE & "($javacall).swigValue()"
 
 %typecheck(SWIG_TYPECHECK_POINTER) const enum SWIGTYPE & ""
@@ -30,23 +30,23 @@
 %{ (void)$1;
    SWIG_DartThrowException(jenv, SWIG_DartRuntimeException, "C++ $1_type exception thrown"); %}
 
-%typemap(javain) const enum SWIGTYPE & "$javainput.swigValue()"
-%typemap(javaout) const enum SWIGTYPE & {
-    return $*javaclassname.swigToEnum($jnicall);
+%typemap(dartin) const enum SWIGTYPE & "$dartinput.swigValue()"
+%typemap(dartout) const enum SWIGTYPE & {
+    return $*dartclassname.swigToEnum($jnicall);
   }
 
 
 // enum SWIGTYPE typemaps
 %typemap(jni) enum SWIGTYPE "jint"
 %typemap(jtype) enum SWIGTYPE "int"
-%typemap(jstype) enum SWIGTYPE "$javaclassname"
+%typemap(jstype) enum SWIGTYPE "$dartclassname"
 
 %typemap(in) enum SWIGTYPE  %{ $1 = ($1_ltype)$input; %}
 %typemap(out) enum SWIGTYPE  %{ $result = (jint)$1; %}
 
 %typemap(directorout) enum SWIGTYPE  %{ $result = ($1_ltype)$input; %}
-%typemap(directorin, descriptor="L$packagepath/$javaclassname;") enum SWIGTYPE "$input = (jint) $1;"
-%typemap(javadirectorin) enum SWIGTYPE "$javaclassname.swigToEnum($jniinput)"
+%typemap(directorin, descriptor="L$packagepath/$dartclassname;") enum SWIGTYPE "$input = (jint) $1;"
+%typemap(javadirectorin) enum SWIGTYPE "$dartclassname.swigToEnum($jniinput)"
 %typemap(javadirectorout) enum SWIGTYPE "($javacall).swigValue()"
 
 %typecheck(SWIG_TYPECHECK_POINTER) enum SWIGTYPE ""
@@ -55,16 +55,16 @@
 %{ (void)$1;
    SWIG_DartThrowException(jenv, SWIG_DartRuntimeException, "C++ $1_type exception thrown"); %}
 
-%typemap(javain) enum SWIGTYPE "$javainput.swigValue()"
-%typemap(javaout) enum SWIGTYPE {
-    return $javaclassname.swigToEnum($jnicall);
+%typemap(dartin) enum SWIGTYPE "$dartinput.swigValue()"
+%typemap(dartout) enum SWIGTYPE {
+    return $dartclassname.swigToEnum($jnicall);
   }
 
 %typemap(javaclassmodifiers) enum SWIGTYPE "public enum"
 %typemap(javabase)           enum SWIGTYPE ""
 %typemap(javacode)           enum SWIGTYPE ""
 %typemap(javaimports)        enum SWIGTYPE ""
-%typemap(javainterfaces)     enum SWIGTYPE ""
+%typemap(dartinterfaces)     enum SWIGTYPE ""
 
 /*
  * SwigNext static inner class used instead of a static int as static fields cannot be accessed from enum initialisers.
@@ -78,29 +78,29 @@
     return swigValue;
   }
 
-  public static $javaclassname swigToEnum(int swigValue) {
-    $javaclassname[] swigValues = $javaclassname.class.getEnumConstants();
+  public static $dartclassname swigToEnum(int swigValue) {
+    $dartclassname[] swigValues = $dartclassname.class.getEnumConstants();
     if (swigValue < swigValues.length && swigValue >= 0 && swigValues[swigValue].swigValue == swigValue)
       return swigValues[swigValue];
-    for ($javaclassname swigEnum : swigValues)
+    for ($dartclassname swigEnum : swigValues)
       if (swigEnum.swigValue == swigValue)
         return swigEnum;
-    throw new IllegalArgumentException("No enum " + $javaclassname.class + " with value " + swigValue);
+    throw new IllegalArgumentException("No enum " + $dartclassname.class + " with value " + swigValue);
   }
 
   @SuppressWarnings("unused")
-  private $javaclassname() {
+  private $dartclassname() {
     this.swigValue = SwigNext.next++;
   }
 
   @SuppressWarnings("unused")
-  private $javaclassname(int swigValue) {
+  private $dartclassname(int swigValue) {
     this.swigValue = swigValue;
     SwigNext.next = swigValue+1;
   }
 
   @SuppressWarnings("unused")
-  private $javaclassname($javaclassname swigEnum) {
+  private $dartclassname($dartclassname swigEnum) {
     this.swigValue = swigEnum.swigValue;
     SwigNext.next = this.swigValue+1;
   }

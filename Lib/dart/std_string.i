@@ -55,9 +55,9 @@ class string;
 %typemap(out) string 
 %{ $result = jenv->NewStringUTF($1.c_str()); %}
 
-%typemap(javain) string "$javainput"
+%typemap(dartin) string "$dartinput"
 
-%typemap(javaout) string {
+%typemap(dartout) string {
     return $jnicall;
   }
 
@@ -105,9 +105,9 @@ class string;
 %typemap(out) const string & 
 %{ $result = jenv->NewStringUTF($1->c_str()); %}
 
-%typemap(javain) const string & "$javainput"
+%typemap(dartin) const string & "$dartinput"
 
-%typemap(javaout) const string & {
+%typemap(dartout) const string & {
     return $jnicall;
   }
 

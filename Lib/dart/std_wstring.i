@@ -79,9 +79,9 @@ class wstring;
   $result = jenv->NewString(conv_buf, $1_len);
   delete [] conv_buf; %}
 
-%typemap(javain) wstring "$javainput"
+%typemap(dartin) wstring "$dartinput"
 
-%typemap(javaout) wstring {
+%typemap(dartout) wstring {
     return $jnicall;
   }
 
@@ -160,9 +160,9 @@ class wstring;
   $result = jenv->NewString(conv_buf, $1_len);
   delete [] conv_buf; %}
 
-%typemap(javain) const wstring & "$javainput"
+%typemap(dartin) const wstring & "$dartinput"
 
-%typemap(javaout) const wstring & {
+%typemap(dartout) const wstring & {
     return $jnicall;
   }
 

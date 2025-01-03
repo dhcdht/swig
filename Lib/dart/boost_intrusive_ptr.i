@@ -218,45 +218,45 @@
                   SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > &,
                   SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > *,
                   SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > *& "$typemap(jstype, TYPE)"
-%typemap(javain) SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE >,
+%typemap(dartin) SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE >,
                  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >,
                  SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > &,
                  SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > *,
-                 SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > *& "$typemap(jstype, TYPE).getCPtr($javainput)"
+                 SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > *& "$typemap(jstype, TYPE).getCPtr($dartinput)"
 
-%typemap(javaout) SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > {
+%typemap(dartout) SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
-%typemap(javaout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > {
+%typemap(dartout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
-%typemap(javaout) SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > & {
+%typemap(dartout) SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > & {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
-%typemap(javaout) SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > * {
+%typemap(dartout) SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > * {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
-%typemap(javaout) SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > *& {
+%typemap(dartout) SWIG_INTRUSIVE_PTR_QNAMESPACE::intrusive_ptr< CONST TYPE > *& {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
 
 
-%typemap(javaout) CONST TYPE {
+%typemap(dartout) CONST TYPE {
     return new $typemap(jstype, TYPE)($jnicall, true);
   }
-%typemap(javaout) CONST TYPE & {
+%typemap(dartout) CONST TYPE & {
     return new $typemap(jstype, TYPE)($jnicall, true);
   }
-%typemap(javaout) CONST TYPE * {
+%typemap(dartout) CONST TYPE * {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
-%typemap(javaout) TYPE *CONST& {
+%typemap(dartout) TYPE *CONST& {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
@@ -266,12 +266,12 @@
   private transient long swigCPtr;
   private transient boolean swigCMemOwnBase;
 
-  PTRCTOR_VISIBILITY $javaclassname(long cPtr, boolean cMemoryOwn) {
+  PTRCTOR_VISIBILITY $dartclassname(long cPtr, boolean cMemoryOwn) {
     swigCMemOwnBase = cMemoryOwn;
     swigCPtr = cPtr;
   }
 
-  CPTR_VISIBILITY static long getCPtr($javaclassname obj) {
+  CPTR_VISIBILITY static long getCPtr($dartclassname obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 %}
@@ -281,13 +281,13 @@
   private transient long swigCPtr;
   private transient boolean swigCMemOwnDerived;
 
-  PTRCTOR_VISIBILITY $javaclassname(long cPtr, boolean cMemoryOwn) {
+  PTRCTOR_VISIBILITY $dartclassname(long cPtr, boolean cMemoryOwn) {
     super($imclassname.$javaclazznameSWIGSmartPtrUpcast(cPtr), true);
     swigCMemOwnDerived = cMemoryOwn;
     swigCPtr = cPtr;
   }
 
-  CPTR_VISIBILITY static long getCPtr($javaclassname obj) {
+  CPTR_VISIBILITY static long getCPtr($dartclassname obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 %}
@@ -390,23 +390,23 @@
 %typemap (jni)    SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > "jlong"
 %typemap (jtype)  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > "long"
 %typemap (jstype) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > "$typemap(jstype, TYPE)"
-%typemap (javain) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > "$typemap(jstype, TYPE).getCPtr($javainput)"
-%typemap(javaout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > {
+%typemap (dartin) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > "$typemap(jstype, TYPE).getCPtr($dartinput)"
+%typemap(dartout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
 
-%typemap(javaout) CONST TYPE {
+%typemap(dartout) CONST TYPE {
     return new $typemap(jstype, TYPE)($jnicall, true);
   }
-%typemap(javaout) CONST TYPE & {
+%typemap(dartout) CONST TYPE & {
     return new $typemap(jstype, TYPE)($jnicall, true);
   }
-%typemap(javaout) CONST TYPE * {
+%typemap(dartout) CONST TYPE * {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
-%typemap(javaout) TYPE *CONST& {
+%typemap(dartout) TYPE *CONST& {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
@@ -416,12 +416,12 @@
   private transient long swigCPtr;
   private transient boolean swigCMemOwnBase;
 
-  PTRCTOR_VISIBILITY $javaclassname(long cPtr, boolean cMemoryOwn) {
+  PTRCTOR_VISIBILITY $dartclassname(long cPtr, boolean cMemoryOwn) {
     swigCMemOwnBase = cMemoryOwn;
     swigCPtr = cPtr;
   }
 
-  CPTR_VISIBILITY static long getCPtr($javaclassname obj) {
+  CPTR_VISIBILITY static long getCPtr($dartclassname obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 %}
@@ -431,13 +431,13 @@
   private transient long swigCPtr;
   private transient boolean swigCMemOwnDerived;
 
-  PTRCTOR_VISIBILITY $javaclassname(long cPtr, boolean cMemoryOwn) {
+  PTRCTOR_VISIBILITY $dartclassname(long cPtr, boolean cMemoryOwn) {
     super($imclassname.$javaclazznameSWIGSmartPtrUpcast(cPtr), true);
     swigCMemOwnDerived = cMemoryOwn;
     swigCPtr = cPtr;
   }
 
-  CPTR_VISIBILITY static long getCPtr($javaclassname obj) {
+  CPTR_VISIBILITY static long getCPtr($dartclassname obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 %}

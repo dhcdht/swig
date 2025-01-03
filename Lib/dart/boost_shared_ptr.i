@@ -31,7 +31,7 @@
 %typemap(out) CONST TYPE
 %{ *(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$result = new SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >(new $1_ltype($1)); %}
 
-%typemap(directorin,descriptor="L$packagepath/$&javaclassname;") CONST TYPE
+%typemap(directorin,descriptor="L$packagepath/$&dartclassname;") CONST TYPE
 %{ $input = 0;
   *((SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input) = new SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > (new $1_ltype(SWIG_STD_MOVE($1))); %}
 
@@ -52,7 +52,7 @@
   *(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$result = $1 ? new SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >($1 SWIG_NO_NULL_DELETER_$owner) : 0;
 %}
 
-%typemap(directorin,descriptor="L$packagepath/$javaclassname;") CONST TYPE *
+%typemap(directorin,descriptor="L$packagepath/$dartclassname;") CONST TYPE *
 %{ $input = 0;
   if ($1) {
     *((SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input) = new SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > ($1 SWIG_NO_NULL_DELETER_0);
@@ -72,7 +72,7 @@
 %typemap(out, fragment="SWIG_null_deleter") CONST TYPE &
 %{ *(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$result = new SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >($1 SWIG_NO_NULL_DELETER_$owner); %}
 
-%typemap(directorin,descriptor="L$packagepath/$javaclassname;") CONST TYPE &
+%typemap(directorin,descriptor="L$packagepath/$dartclassname;") CONST TYPE &
 %{ $input = 0;
   *((SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input) = new SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > (&$1 SWIG_NO_NULL_DELETER_0); %}
 
@@ -87,7 +87,7 @@
 %typemap(out, fragment="SWIG_null_deleter") TYPE *CONST&
 %{ *(SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$result = new SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >(*$1 SWIG_NO_NULL_DELETER_$owner); %}
 
-%typemap(directorin,descriptor="L$packagepath/$*javaclassname;") TYPE *CONST&
+%typemap(directorin,descriptor="L$packagepath/$*dartclassname;") TYPE *CONST&
 %{ $input = 0;
   if ($1) {
     *((SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > **)&$input) = new SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > ($1 SWIG_NO_NULL_DELETER_0);
@@ -178,50 +178,50 @@
 %typemap (jni)    SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >,
                   SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > &,
                   SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *,
-                  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& "jlong"
+                  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& "int64_t"
 %typemap (jtype)  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >,
                   SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > &,
                   SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *,
-                  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& "long"
+                  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& "Int64"
 %typemap (jstype) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >,
                   SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > &,
                   SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *,
-                  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& "$typemap(jstype, TYPE)"
+                  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& "int"
 
-%typemap(javain) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >,
+%typemap(dartin) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE >,
                  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > &,
                  SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *,
-                 SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& "$typemap(jstype, TYPE).getCPtr($javainput)"
+                 SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& "$typemap(jstype, TYPE).getCPtr($dartinput)"
 
-%typemap(javaout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > {
+%typemap(dartout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
-%typemap(javaout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > & {
+%typemap(dartout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > & {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
-%typemap(javaout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > * {
+%typemap(dartout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > * {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
-%typemap(javaout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& {
+%typemap(dartout) SWIG_SHARED_PTR_QNAMESPACE::shared_ptr< CONST TYPE > *& {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
 
 
-%typemap(javaout) CONST TYPE {
+%typemap(dartout) CONST TYPE {
     return new $typemap(jstype, TYPE)($jnicall, true);
   }
-%typemap(javaout) CONST TYPE & {
+%typemap(dartout) CONST TYPE & {
     return new $typemap(jstype, TYPE)($jnicall, true);
   }
-%typemap(javaout) CONST TYPE * {
+%typemap(dartout) CONST TYPE * {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
-%typemap(javaout) TYPE *CONST& {
+%typemap(dartout) TYPE *CONST& {
     long cPtr = $jnicall;
     return (cPtr == 0) ? null : new $typemap(jstype, TYPE)(cPtr, true);
   }
@@ -243,12 +243,12 @@
   private transient long swigCPtr;
   private transient boolean swigCMemOwn;
 
-  PTRCTOR_VISIBILITY $javaclassname(long cPtr, boolean cMemoryOwn) {
+  PTRCTOR_VISIBILITY $dartclassname(long cPtr, boolean cMemoryOwn) {
     swigCMemOwn = cMemoryOwn;
     swigCPtr = cPtr;
   }
 
-  CPTR_VISIBILITY static long getCPtr($javaclassname obj) {
+  CPTR_VISIBILITY static long getCPtr($dartclassname obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 
@@ -262,13 +262,13 @@
   private transient long swigCPtr;
   private transient boolean swigCMemOwnDerived;
 
-  PTRCTOR_VISIBILITY $javaclassname(long cPtr, boolean cMemoryOwn) {
+  PTRCTOR_VISIBILITY $dartclassname(long cPtr, boolean cMemoryOwn) {
     super($imclassname.$javaclazznameSWIGSmartPtrUpcast(cPtr), true);
     swigCMemOwnDerived = cMemoryOwn;
     swigCPtr = cPtr;
   }
 
-  CPTR_VISIBILITY static long getCPtr($javaclassname obj) {
+  CPTR_VISIBILITY static long getCPtr($dartclassname obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
   }
 

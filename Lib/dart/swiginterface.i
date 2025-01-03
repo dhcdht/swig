@@ -12,29 +12,29 @@
 %typemap(jstype) CTYPE "$&javainterfacename"
 %typemap(jstype) CTYPE *, CTYPE [], CTYPE & "$javainterfacename"
 %typemap(jstype) CTYPE *const& "$*javainterfacename"
-%typemap(javain) CTYPE "$javainput.$&interfacename_GetInterfaceCPtr()"
-%typemap(javain) CTYPE & "$javainput.$interfacename_GetInterfaceCPtr()"
-%typemap(javain) CTYPE *, CTYPE [] "($javainput == null) ? 0 : $javainput.$interfacename_GetInterfaceCPtr()"
-%typemap(javain) CTYPE *const& "($javainput == null) ? 0 : $javainput.$*interfacename_GetInterfaceCPtr()"
-%typemap(javaout) CTYPE {
-    return ($&javainterfacename)new $&javaclassname($jnicall, true);
+%typemap(dartin) CTYPE "$dartinput.$&interfacename_GetInterfaceCPtr()"
+%typemap(dartin) CTYPE & "$dartinput.$interfacename_GetInterfaceCPtr()"
+%typemap(dartin) CTYPE *, CTYPE [] "($dartinput == null) ? 0 : $dartinput.$interfacename_GetInterfaceCPtr()"
+%typemap(dartin) CTYPE *const& "($dartinput == null) ? 0 : $dartinput.$*interfacename_GetInterfaceCPtr()"
+%typemap(dartout) CTYPE {
+    return ($&javainterfacename)new $&dartclassname($jnicall, true);
   }
-%typemap(javaout) CTYPE & {
-    return ($javainterfacename)new $javaclassname($jnicall, $owner);
+%typemap(dartout) CTYPE & {
+    return ($javainterfacename)new $dartclassname($jnicall, $owner);
   }
-%typemap(javaout) CTYPE *, CTYPE [] {
+%typemap(dartout) CTYPE *, CTYPE [] {
     long cPtr = $jnicall;
-    return (cPtr == 0) ? null : ($javainterfacename)new $javaclassname(cPtr, $owner);
+    return (cPtr == 0) ? null : ($javainterfacename)new $dartclassname(cPtr, $owner);
   }
-%typemap(javaout) CTYPE *const& {
+%typemap(dartout) CTYPE *const& {
     long cPtr = $jnicall;
-    return (cPtr == 0) ? null : ($*javainterfacename)new $*javaclassname(cPtr, $owner);
+    return (cPtr == 0) ? null : ($*javainterfacename)new $*dartclassname(cPtr, $owner);
   }
 
-%typemap(javadirectorin) CTYPE "($&javainterfacename)new $&javaclassname($jniinput, true)"
-%typemap(javadirectorin) CTYPE & "($javainterfacename)new $javaclassname($jniinput, false)"
-%typemap(javadirectorin) CTYPE *, CTYPE [] "($jniinput == 0) ? null : ($javainterfacename)new $javaclassname($jniinput, false)"
-%typemap(javadirectorin) CTYPE *const& "($jniinput == 0) ? null : ($*javainterfacename)new $*javaclassname($jniinput, false)"
+%typemap(javadirectorin) CTYPE "($&javainterfacename)new $&dartclassname($jniinput, true)"
+%typemap(javadirectorin) CTYPE & "($javainterfacename)new $dartclassname($jniinput, false)"
+%typemap(javadirectorin) CTYPE *, CTYPE [] "($jniinput == 0) ? null : ($javainterfacename)new $dartclassname($jniinput, false)"
+%typemap(javadirectorin) CTYPE *const& "($jniinput == 0) ? null : ($*javainterfacename)new $*dartclassname($jniinput, false)"
 %typemap(javadirectorout) CTYPE "$javacall.$&interfacename_GetInterfaceCPtr()"
 %typemap(javadirectorout) CTYPE *, CTYPE [], CTYPE & "$javacall.$interfacename_GetInterfaceCPtr()"
 %typemap(javadirectorout) CTYPE *const& "$javacall.$*interfacename_GetInterfaceCPtr()"

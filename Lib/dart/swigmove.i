@@ -13,4 +13,4 @@
    }
   SwigValueWrapper< $1_ltype >::reset($1, argp); %}
 
-%typemap(javain) SWIGTYPE MOVE "$&javaclassname.swigRelease($javainput)"
+%typemap(dartin) SWIGTYPE MOVE "$&dartclassname.swigRelease($dartinput)"

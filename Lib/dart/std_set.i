@@ -48,7 +48,7 @@ class set {
 
 %typemap(javabase) std::set<T> "java.util.AbstractSet<$typemap(jboxtype, T)>"
 %proxycode %{
-  public $javaclassname(java.util.Collection<? extends $typemap(jboxtype, T)> collection) {
+  public $dartclassname(java.util.Collection<? extends $typemap(jboxtype, T)> collection) {
     this();
     addAll(collection);
   }
@@ -76,8 +76,8 @@ class set {
       private Iterator end;
 
       private java.util.Iterator<$typemap(jboxtype, T)> init() {
-        curr = $javaclassname.this.begin();
-        end = $javaclassname.this.end();
+        curr = $dartclassname.this.begin();
+        end = $dartclassname.this.end();
         return this;
       }
 

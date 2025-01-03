@@ -1341,7 +1341,6 @@ SWIG_DARTBODY_TYPEWRAPPER(protected, , , SWIGTYPE)
 
 %define SWIG_PROXY_CONSTRUCTOR(OWNERSHIP, WEAKREF, TYPENAME...)
 %typemap(dartconstruct,directorconnect="\n    $imclassname.$dartclazznamedirector_connect(this, swigCPtr, OWNERSHIP, WEAKREF);") TYPENAME {
-    //$directorconnect
     return $dartclassname.n($imcall, OWNERSHIP);
   }
 %enddef
