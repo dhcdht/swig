@@ -27,7 +27,8 @@ class string;
 %typemap(in) string 
 %{
     if(!$input) {
-        SWIG_ObjcThrowException(SWIG_ObjcNullPointerException, "null string");
+        // SWIG_ObjcThrowException(SWIG_ObjcNullPointerException, "null string");
+        $1.assign("");
     } else {
         $1.assign([$input UTF8String]);
     }
@@ -35,7 +36,8 @@ class string;
 %typemap(directorout) string 
 %{
     if(!$input) {
-        SWIG_ObjcThrowException(SWIG_ObjcNullPointerException, "Unexpected null string");
+        // SWIG_ObjcThrowException(SWIG_ObjcNullPointerException, "Unexpected null string");
+        $result.assign("");
     } else {
         $result.assign([$input UTF8String]);
     }
@@ -62,7 +64,9 @@ class string;
 %{
     std::string $1_str;
     if(!$input) {
-        SWIG_ObjcThrowException(SWIG_ObjcNullPointerException, "null string reference");
+        // SWIG_ObjcThrowException(SWIG_ObjcNullPointerException, "null string reference");
+        $1_str.assign("");
+        $1 = &$1_str;
     } else {
         $1_str.assign([$input UTF8String]);
         $1 = &$1_str;
@@ -72,7 +76,9 @@ class string;
 %{
     std::string $1_str;
     if(!$input) {
-        SWIG_ObjcThrowException(SWIG_ObjcNullPointerException, "Unexpected null string reference");
+        // SWIG_ObjcThrowException(SWIG_ObjcNullPointerException, "Unexpected null string reference");
+        $1_str.assign("");
+        $result = &$1_str;
     } else {
         $1_str.assign([$input UTF8String]);
         $result = &$1_str;
